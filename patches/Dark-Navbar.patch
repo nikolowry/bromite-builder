@@ -1,0 +1,57 @@
+diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res/values/colors.xml
+--- a/chrome/android/java/res/values/colors.xml
++++ b/chrome/android/java/res/values/colors.xml
+@@ -28,7 +28,6 @@
+ 
+     <!-- Modern color palette -->
+     <color name="black_alpha_11">#1D000000</color>
+-    <color name="black_alpha_12">#1F000000</color>
+     <color name="black_alpha_20">#33000000</color>
+     <color name="black_alpha_24">#3D000000</color>
+     <color name="black_alpha_30">#4D000000</color>
+@@ -192,8 +191,8 @@
+     <color name="image_viewer_bg">#0E0E0E</color>
+     <color name="modern_blue_600_alpha_38_opaque">#A8CAF6</color>
+     <color name="toolbar_shadow_color">@color/black_alpha_11</color>
+-    <color name="bottom_system_nav_color">@android:color/white</color>
+-    <color name="bottom_system_nav_divider_color">@color/black_alpha_12</color>
++    <color name="bottom_system_nav_color">@android:color/black</color>
++    <color name="bottom_system_nav_divider_color">@android:color/black</color>
+     <color name="search_box_hint">@color/default_text_color_secondary</color>
+     <color name="placeholder_thumbnail_bg_color">#DADCE0</color>
+     <color name="clear_browsing_data_selected_tab_color">@color/modern_blue_600</color>
+diff -rupN a/chrome/android/java/res/values-v27/styles.xml b/chrome/android/java/res/values-v27/styles.xml
+--- a/chrome/android/java/res/values-v27/styles.xml
++++ b/chrome/android/java/res/values-v27/styles.xml
+@@ -9,27 +9,27 @@
+         <!--suppress NewApi: crbug.com/856861-->
+         <item name="android:navigationBarDividerColor">@color/bottom_system_nav_divider_color</item>
+         <!--suppress NewApi: crbug.com/856861-->
+-        <item name="android:windowLightNavigationBar">true</item>
++        <item name="android:windowLightNavigationBar">false</item>
+     </style>
+     <style name="FullscreenWhite" parent="FullscreenWhiteBase">
+         <item name="android:navigationBarColor">@color/bottom_system_nav_color</item>
+         <!--suppress NewApi: crbug.com/856861-->
+         <item name="android:navigationBarDividerColor">@color/bottom_system_nav_divider_color</item>
+         <!--suppress NewApi: crbug.com/856861-->
+-        <item name="android:windowLightNavigationBar">true</item>
++        <item name="android:windowLightNavigationBar">false</item>
+     </style>
+     <style name="ThemeWithActionBar" parent="ThemeWithActionBarBase">
+         <item name="android:navigationBarColor">@color/bottom_system_nav_color</item>
+         <!--suppress NewApi: crbug.com/856861-->
+         <item name="android:navigationBarDividerColor">@color/bottom_system_nav_divider_color</item>
+         <!--suppress NewApi: crbug.com/856861-->
+-        <item name="android:windowLightNavigationBar">true</item>
++        <item name="android:windowLightNavigationBar">false</item>
+     </style>
+     <style name="DialogWhenLarge" parent="DialogWhenLargeBase">
+         <item name="android:navigationBarColor">@color/bottom_system_nav_color</item>
+         <!--suppress NewApi: crbug.com/856861-->
+         <item name="android:navigationBarDividerColor">@color/bottom_system_nav_divider_color</item>
+         <!--suppress NewApi: crbug.com/856861-->
+-        <item name="android:windowLightNavigationBar">true</item>
++        <item name="android:windowLightNavigationBar">false</item>
+     </style>
+ </resources>

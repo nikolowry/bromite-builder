@@ -1,0 +1,283 @@
+#!/usr/bin/env bash
+
+# Unofficial Strict Mode
+set -euo pipefail
+IFS=$'\n\t'
+
+# Dynamic Vars for Options with inputs
+ARCH_TYPES=('arm' 'arm64' 'x86')
+ARCH=${ARCH_TYPES[0]}
+TARGET_TYPES=('chrome_modern_public_apk' 'chrome_public_apk'
+    'monochrome_public_apk')
+TARGET=${TARGET_TYPES[0]}
+VERSION=
+
+# Options | TODO: Add support for passing GN args in cli
+opts=(
+    "-a, --arch=<arch> | Where <arch> is: $(echo ${ARCH_TYPES[@]} \
+        | sed -E "s/\s/, /g"). Defaults to $ARCH"
+    "-t, --target=<target> | Where Ninja <target> is: $(echo ${TARGET_TYPES[@]} \
+        | sed -E "s/\s/, /g"). Defaults to $TARGET"
+    "-v, --version=<version> | Build version, defaults to latest Bromite release"
+    "-h, --help | Print help menu")
+
+# Constants
+DEFAULTS=('version' 'fetch-sync' 'prepare' 'build')
+CWD=$(cd "$( dirname "$0" )" && pwd)
+BUILD_DIR=$CWD/build
+BASE_URL="https://github.com/bromite"
+
+clean () {
+    rm -rf $BUILD_DIR
+}
+
+version () {
+    local url=
+
+    [[ $VERSION ]] \
+        && url=$BASE_URL/bromite/archive/$VERSION.tar.gz \
+        || url=$BASE_URL/bromite/releases/latest
+
+    [[ $(curl -Lso /dev/null -I -w "%{http_code}" $url) != 200 ]] \
+        && echo "Error: Archive not found" \
+        && exit 1
+
+    if [[ ! $VERSION ]]; then
+        local latest=$(curl -Lso /dev/null -w '%{url_effective}' $url)
+        VERSION=${latest##*/}
+    fi
+
+    echo "Version set to $VERSION"
+}
+
+fetch-sync () {
+    mkdir -p $BUILD_DIR
+    cd $BUILD_DIR
+
+    # Fetch Bromite
+    curl -Lo bromite-$VERSION.tar.gz \
+        $BASE_URL/bromite/archive/$VERSION.tar.gz
+
+    tar -xf bromite-$VERSION.tar.gz
+
+    mkdir -p chromium
+    cd chromium
+
+    # Fetch Chromium
+    [[ ! -e .gclient ]] \
+        && fetch --nohooks android
+
+    cd src
+
+    # Reset tree
+    git clean -fdxq --exclude=out
+
+    # Install build deps if "apt-get" command detected
+    [[ $(command -v apt-get) ]] \
+        && ./build/install-build-deps-android.sh
+
+    # Accept any y/n prompts
+    echo 'y' | gclient sync --with_branch_heads --force --reset -r $VERSION
+}
+
+prepare () {
+    [[ ! -d $BUILD_DIR/chromium/src ]] \
+        && fetch-sync
+
+    rm -rf $BUILD_DIR/patches
+
+    local bromite_src=$([[ -d $BUILD_DIR/bromite-$VERSION/build ]] \
+        && echo $BUILD_DIR/bromite-$VERSION/build \
+        || echo $BUILD_DIR/bromite-$VERSION)
+
+    # Prep Patching
+    cp -rf $bromite_src/patches \
+        $BUILD_DIR/patches
+
+    cp -rf $CWD/patches/. \
+        $BUILD_DIR/patches
+
+    # TODO: Remove after patch issues are resolved
+    [[ ! -e $bromite_src/patches_list.txt ]] \
+        && mv -f $BUILD_DIR/patches/Remove-Sync-and-Translate-menu.patch \
+            $BUILD_DIR/patches/BRM020_Remove-Sync-and-Translate-menu.patch \
+        && mv -f $BUILD_DIR/patches/ungoogled-chromium-disable-safe-browsing.patch \
+            $BUILD_DIR/patches/BRM086_ungoogled-chromium-disable-safe-browsing.patch \
+        && rm -f $BUILD_DIR/patches/Allow-building-without-safebrowsing-for-Android.patch
+
+    cd $BUILD_DIR/chromium/src
+
+    # TODO: Remove after `Remove-Sync-and-Translate-menu.patch` issue resolved
+    local translate_pngs=$(find -name settings_translate.png)
+
+    [[ $translate_pngs ]] \
+        && $(echo $translate_pngs | xargs rm)
+
+    local patchlist=
+
+    # Patch List Order
+    [[ -e $bromite_src/patches_list.txt ]] \
+        && patchlist=($(cat $CWD/patches_list.txt \
+            | sed -e "s|^|$BUILD_DIR/patches/|g")) \
+        || patchlist=($BUILD_DIR/patches/*.patch)
+
+    # Add custom patches to patchlist
+    if [[ -e $bromite_src/patches_list.txt ]]; then
+        for patchfile in $BUILD_DIR/patches/*.patch; do
+            [[ ! -e "$bromite_src/patches/$(basename $patchfile)" ]] \
+                && patchlist+=($patchfile)
+        done
+    fi
+
+    # Apply Patches
+    for patchfile in ${patchlist[@]}; do
+        echo "Applying patch: $(basename $patchfile)"
+        git apply --whitespace=nowarn --no-index $patchfile
+    done
+
+    # Copy Adblock Entries Header
+    cp -f $bromite_src/filters/adblock_entries.h \
+        net/url_request
+}
+
+build () {
+    [[ ! -d $BUILD_DIR/chromium/src ]] \
+        && fetch-sync \
+        && prepare
+
+    local bromite_src=$([[ -d $BUILD_DIR/bromite-$VERSION/build ]] \
+        && echo $BUILD_DIR/bromite-$VERSION/build \
+        || echo $BUILD_DIR/bromite-$VERSION)
+
+    cd $BUILD_DIR/chromium/src
+    export CHROMIUM_OUTPUT_DIR="out/Default_$ARCH"
+    mkdir -p $CHROMIUM_OUTPUT_DIR
+
+    # Faster builds with no symbols and jumbo
+    local gn_args=$(cat $bromite_src/GN_ARGS \
+        | tr "\n" " " \
+        | sed -e "s/enable_av1_decoder\=true\s*//g" \
+        | sed -e "s/symbol_level\=1/symbol_level\=0/g")
+
+    gn gen "--args=target_cpu=\"$ARCH\" use_jumbo_build=true $gn_args" \
+        $CHROMIUM_OUTPUT_DIR
+
+    autoninja -C $CHROMIUM_OUTPUT_DIR $TARGET
+}
+
+_getcmds () {
+    echo $(typeset -f \
+        | awk '/ \(\) $/ && !/^(main) / {print $1}' \
+        | sed -E "s/(_.+\s*)//g")
+}
+
+_setopts () {
+    local args_arr=($(echo $@ \
+        | sed -E "s/=/ /g" \
+        | tr ' ' '\n'))
+
+    for opt in ${opts[@]}; do
+        [[ $opt =~ '-h' ]] \
+            && continue
+
+        local opt_arr=($(echo $opt \
+            | sed -E "s/\s*\|.+//g" \
+            | sed -E "s/[=|\s]*<.+>//g" \
+            | tr ", " "\n"))
+
+        [[ ${#opt_arr[@]} != 2 ]] \
+            && continue
+
+        local opt_var=$(echo ${opt_arr[1]} \
+            | sed -E "s/^--//g" \
+            | sed -E "s/\W/_/g" \
+            | tr '[a-z]' '[A-Z]')
+
+        local opt_var_types=${opt_var}_TYPES[@]
+
+        local idx=0
+
+        for arg in ${args_arr[@]}; do
+            case $arg in
+                ${opt_arr[0]}|${opt_arr[1]})
+                    if [[ ! $opt =~ [=|\s]*\<.+\> ]]; then
+                        export "$opt_var=1"
+                    elif [[ ! ${!opt_var_types:-} ]] \
+                            || [[ $(printf "%s\n" ${!opt_var_types} \
+                                | grep -n "^${args_arr[$idx + 1]}$") ]]; then
+                        export "$opt_var=${args_arr[$idx + 1]}"
+                    fi
+                    ;;
+            esac
+
+            idx=$(( $idx + 1 ))
+        done
+    done
+}
+
+_localbin () {
+    mkdir -p $CWD/.bin
+
+    # Depot Tools
+    [[ ! -d $CWD/.bin/depot_tools ]] \
+        && cd $CWD/.bin \
+        && git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+
+    cd $CWD/.bin/depot_tools
+    git pull -q
+    export PATH=$CWD/.bin/depot_tools:$PATH
+
+    # Use Python 2
+    local python_v=$(python --version \
+        | sed "s|[a-z]\s*||ig" \
+        | cut -d '.' -f 1)
+
+    [[ $python_v != 2 ]] && [[ $(command -v python2) ]] \
+        && ln -sf $(which python2) $CWD/.bin/python \
+        && export PATH=$CWD/.bin:$PATH
+}
+
+_help () {
+cat <<HEREDOC
+Usage: ${0} [command...] [options...]
+
+Where optional [command] is one of:
+    $(_getcmds | sed -E "s/\s/, /g")
+
+If no [command] is set, the default command sequence will be executed:
+$(printf "    - %s\n" ${DEFAULTS[@]})
+
+Options:
+$(printf "    %s\n" ${opts[@]} | column -t -s "|")
+
+HEREDOC
+}
+
+main () {
+    # Help Menu
+    [[ $@ =~ -h|--help ]] \
+        && _help \
+        && return
+
+    # Set Options
+    _setopts $@
+
+    # Setup Local bin
+    _localbin
+
+    # Detect if 1st param of args is a valid function
+    if [[ ${1:-} ]] && [[ $(_getcmds) =~ $1 ]]; then
+        [[ $1 != 'version' ]] && [[ $1 != 'clean' ]] \
+            && version
+        $1
+        return
+    fi
+
+    # No command detected, run default sequence
+    for cmd in ${DEFAULTS[@]}; do
+        eval $cmd
+    done
+}
+
+# Entry Function
+main $@
