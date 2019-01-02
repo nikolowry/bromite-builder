@@ -103,7 +103,7 @@ prepare () {
             $BUILD_DIR/patches/BRM020_Remove-Sync-and-Translate-menu.patch \
         && mv -f $BUILD_DIR/patches/ungoogled-chromium-disable-safe-browsing.patch \
             $BUILD_DIR/patches/BRM086_ungoogled-chromium-disable-safe-browsing.patch \
-        && rm -f $BUILD_DIR/patches/Allow-building-without-safebrowsing-for-Android.patch
+        && rm -f $BUILD_DIR/patches/Bromite-adblock-engine.patch
 
     cd $BUILD_DIR/chromium/src
 
@@ -117,7 +117,7 @@ prepare () {
 
     # Patch List Order
     [[ -e $bromite_src/patches_list.txt ]] \
-        && patchlist=($(cat $CWD/patches_list.txt \
+        && patchlist=($(cat $bromite_src/patches_list.txt \
             | sed -e "s|^|$BUILD_DIR/patches/|g")) \
         || patchlist=($BUILD_DIR/patches/*.patch)
 
@@ -132,7 +132,7 @@ prepare () {
     # Apply Patches
     for patchfile in ${patchlist[@]}; do
         echo "Applying patch: $(basename $patchfile)"
-        git apply --whitespace=nowarn --no-index $patchfile
+        git apply --whitespace=nowarn $patchfile
     done
 
     # Copy Adblock Entries Header
