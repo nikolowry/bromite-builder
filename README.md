@@ -57,8 +57,7 @@ Options:
 Builds produced with `bromite-builder` differ from official Bromite releases with the following:
 
 - Retains Chromium branding and namespace
-- Reverts the white Navigation Bar in the Material Design refresh to black
-- AV1 Decoder is disabled ([Issue #1](https://github.com/nikolowry/bromite-builder/issues/1))
+- Reverts the white Navigation Bar in the Material Design Refresh (MD2) to black
 - Symbols are turned off and Jumbo builds are enabled for faster build times
 
 ## <a name="resources"></a>Resources
