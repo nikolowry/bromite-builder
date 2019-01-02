@@ -33,7 +33,7 @@ cd bromite-builder
 Usage instructions are always available by running `./bromite-builder -h` or 
 `./bromite-builder --help`
 
-```shell
+```
 Usage: ./bromite-builder [command...] [options...]
 
 Where optional [command] is one of:
@@ -58,7 +58,7 @@ Builds produced with `bromite-builder` differ from official Bromite releases wit
 
 - Retains Chromium branding and namespace
 - Reverts the white Navigation Bar in the Material Design refresh to black
-- AV1 Decoder is disabled (Temporarily, not currently building with `enable_av1_decoder=true`
+- AV1 Decoder is disabled ([Issue #1](https://github.com/nikolowry/bromite-builder/issues/1))
 - Symbols are turned off and Jumbo builds are enabled for faster build times
 
 ## <a name="resources"></a>Resources
