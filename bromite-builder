@@ -226,10 +226,11 @@ _localbin () {
     # Depot Tools
     [[ ! -d $CWD/.bin/depot_tools ]] \
         && cd $CWD/.bin \
-        && git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+        && git clone -q https://chromium.googlesource.com/chromium/tools/depot_tools.git
 
     cd $CWD/.bin/depot_tools
     git pull -q
+
     export PATH=$CWD/.bin/depot_tools:$PATH
 
     # Use Python 2
