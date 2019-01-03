@@ -104,19 +104,11 @@ prepare () {
 
     # TODO: Remove after patch issues are resolved
     [[ ! -e $bromite_src/patches_list.txt ]] \
-        && mv -f $BUILD_DIR/patches/Remove-Sync-and-Translate-menu.patch \
-            $BUILD_DIR/patches/BRM020_Remove-Sync-and-Translate-menu.patch \
         && mv -f $BUILD_DIR/patches/ungoogled-chromium-disable-safe-browsing.patch \
             $BUILD_DIR/patches/BRM086_ungoogled-chromium-disable-safe-browsing.patch \
         && rm -f $BUILD_DIR/patches/Bromite-adblock-engine.patch
 
     cd $BUILD_DIR/chromium/src
-
-    # TODO: Remove after `Remove-Sync-and-Translate-menu.patch` issue resolved
-    local translate_pngs=$(find -name settings_translate.png)
-
-    [[ $translate_pngs ]] \
-        && $(echo $translate_pngs | xargs rm)
 
     local patchlist=
 
@@ -134,10 +126,17 @@ prepare () {
         done
     fi
 
+    # Remove */settings_translate.png prior to patching
+    local translate_pngs=$(find -name settings_translate.png)
+
+    [[ $translate_pngs ]] \
+        && $(echo $translate_pngs | xargs rm)
+
     # Apply Patches
     for patchfile in ${patchlist[@]}; do
         echo "Applying patch: $(basename $patchfile)"
-        git apply --whitespace=nowarn $patchfile
+        git apply --whitespace=nowarn --exclude='*/settings_translate.png' \
+            $patchfile
     done
 
     # Copy Adblock Entries Header
