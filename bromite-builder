@@ -32,8 +32,8 @@ clean () {
 }
 
 version () {
-    local url=
-    local error_msg=
+    local url
+    local error_msg
 
     [[ $VERSION ]] \
         && url=$BASE_URL/bromite/archive/$VERSION.tar.gz \
@@ -91,6 +91,8 @@ prepare () {
 
     rm -rf $BUILD_DIR/patches
 
+    # TODO: Determine support for building legacy releases.
+    # Possibly blacklist v71.0.3578.115 if removing patch overrides
     local bromite_src=$([[ -d $BUILD_DIR/bromite-$VERSION/build ]] \
         && echo $BUILD_DIR/bromite-$VERSION/build \
         || echo $BUILD_DIR/bromite-$VERSION)
@@ -102,17 +104,19 @@ prepare () {
     cp -rf $CWD/patches/. \
         $BUILD_DIR/patches
 
-    # TODO: Remove after patch issues are resolved
+    # TODO: Remove/modify after patch & legacy support issues are resolved
     [[ ! -e $bromite_src/patches_list.txt ]] \
+        && mv -f $BUILD_DIR/patches/Remove-Sync-and-Translate-menu.patch \
+            $BUILD_DIR/patches/BRM020_Remove-Sync-and-Translate-menu.patch \
         && mv -f $BUILD_DIR/patches/ungoogled-chromium-disable-safe-browsing.patch \
             $BUILD_DIR/patches/BRM086_ungoogled-chromium-disable-safe-browsing.patch \
         && rm -f $BUILD_DIR/patches/Bromite-adblock-engine.patch
 
     cd $BUILD_DIR/chromium/src
 
-    local patchlist=
-
     # Patch List Order
+    local patchlist
+
     [[ -e $bromite_src/patches_list.txt ]] \
         && patchlist=($(cat $bromite_src/patches_list.txt \
             | sed -e "s|^|$BUILD_DIR/patches/|g")) \
@@ -129,19 +133,12 @@ prepare () {
     # Apply Patches
     for patchfile in ${patchlist[@]}; do
         echo "Applying patch: $(basename $patchfile)"
-        git apply --whitespace=nowarn --exclude='*/settings_translate.png' \
-            $patchfile
+        git apply --whitespace=nowarn $patchfile
     done
 
     # Copy Adblock Entries Header
     cp -f $bromite_src/filters/adblock_entries.h \
         net/url_request
-
-    # Remove */settings_translate.png
-    local translate_pngs=$(find -name settings_translate.png)
-
-    [[ $translate_pngs ]] \
-        && $(echo $translate_pngs | xargs rm)
 }
 
 build () {
