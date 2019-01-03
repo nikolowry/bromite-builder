@@ -126,12 +126,6 @@ prepare () {
         done
     fi
 
-    # Remove */settings_translate.png prior to patching
-    local translate_pngs=$(find -name settings_translate.png)
-
-    [[ $translate_pngs ]] \
-        && $(echo $translate_pngs | xargs rm)
-
     # Apply Patches
     for patchfile in ${patchlist[@]}; do
         echo "Applying patch: $(basename $patchfile)"
@@ -142,6 +136,12 @@ prepare () {
     # Copy Adblock Entries Header
     cp -f $bromite_src/filters/adblock_entries.h \
         net/url_request
+
+    # Remove */settings_translate.png
+    local translate_pngs=$(find -name settings_translate.png)
+
+    [[ $translate_pngs ]] \
+        && $(echo $translate_pngs | xargs rm)
 }
 
 build () {
