@@ -110,7 +110,7 @@ prepare () {
     cd $BUILD_DIR/chromium/src
 
     # Patch List Order
-    local patchlist=$(< "$bromite_src/patches/patches_list.txt")
+    local patchlist=($(< "$bromite_src/patches/patches_list.txt"))
 
     # Add custom patches to patchlist
     if [[ -e $bromite_src/patches_list.txt ]]; then
