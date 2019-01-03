@@ -33,13 +33,18 @@ clean () {
 
 version () {
     local url=
+    local error_msg=
 
     [[ $VERSION ]] \
         && url=$BASE_URL/bromite/archive/$VERSION.tar.gz \
         || url=$BASE_URL/bromite/releases/latest
 
+    [[ $VERSION ]] \
+        && error_msg="Error: Bromite release version $VERSION not found" \
+        || error_msg='Error: Latest Bromite release not found. Check your network connection and try again'
+
     [[ $(curl -Lso /dev/null -I -w "%{http_code}" $url) != 200 ]] \
-        && echo "Error: Archive not found" \
+        && echo $error_msg \
         && exit 1
 
     if [[ ! $VERSION ]]; then
