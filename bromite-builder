@@ -32,8 +32,8 @@ clean () {
 }
 
 version () {
-    local url=
-    local error_msg=
+    local url
+    local error_msg
 
     [[ $VERSION ]] \
         && url=$BASE_URL/bromite/archive/$VERSION.tar.gz \
@@ -91,7 +91,8 @@ prepare () {
 
     rm -rf $BUILD_DIR/patches
 
-    local bromite_src=$([[ -d $BUILD_DIR/bromite-$VERSION/build ]] \
+    local bromite_src
+    bromite_src=$([[ -d $BUILD_DIR/bromite-$VERSION/build ]] \
         && echo $BUILD_DIR/bromite-$VERSION/build \
         || echo $BUILD_DIR/bromite-$VERSION)
 
@@ -110,13 +111,9 @@ prepare () {
 
     cd $BUILD_DIR/chromium/src
 
-    local patchlist=
-
     # Patch List Order
-    [[ -e $bromite_src/patches_list.txt ]] \
-        && patchlist=($(cat $bromite_src/patches_list.txt \
-            | sed -e "s|^|$BUILD_DIR/patches/|g")) \
-        || patchlist=($BUILD_DIR/patches/*.patch)
+    local patchlist
+    patchlist=$(< "$bromite_src/patches/patches_list.txt")
 
     # Add custom patches to patchlist
     if [[ -e $bromite_src/patches_list.txt ]]; then
@@ -128,20 +125,12 @@ prepare () {
 
     # Apply Patches
     for patchfile in ${patchlist[@]}; do
-        echo "Applying patch: $(basename $patchfile)"
-        git apply --whitespace=nowarn --exclude='*/settings_translate.png' \
-            $patchfile
+        $bromite_src/build/git-am.sh $patchfile
     done
 
     # Copy Adblock Entries Header
     cp -f $bromite_src/filters/adblock_entries.h \
         net/url_request
-
-    # Remove */settings_translate.png
-    local translate_pngs=$(find -name settings_translate.png)
-
-    [[ $translate_pngs ]] \
-        && $(echo $translate_pngs | xargs rm)
 }
 
 build () {
@@ -149,7 +138,8 @@ build () {
         && fetch-sync \
         && prepare
 
-    local bromite_src=$([[ -d $BUILD_DIR/bromite-$VERSION/build ]] \
+    local bromite_src
+    bromite_src=$([[ -d $BUILD_DIR/bromite-$VERSION/build ]] \
         && echo $BUILD_DIR/bromite-$VERSION/build \
         || echo $BUILD_DIR/bromite-$VERSION)
 
@@ -158,7 +148,8 @@ build () {
     mkdir -p $CHROMIUM_OUTPUT_DIR
 
     # Faster builds with no symbols and jumbo
-    local gn_args=$(cat $bromite_src/GN_ARGS \
+    local gn_args
+    gn_args=$(cat $bromite_src/GN_ARGS \
         | tr "\n" " " \
         | sed -e "s/enable_av1_decoder\=true\s*//g" \
         | sed -e "s/symbol_level\=1/symbol_level\=0/g")
@@ -176,7 +167,8 @@ _getcmds () {
 }
 
 _setopts () {
-    local args_arr=($(echo $@ \
+    local args_arr
+    args_arr=($(echo $@ \
         | sed -E "s/=/ /g" \
         | tr ' ' '\n'))
 
@@ -184,7 +176,8 @@ _setopts () {
         [[ $opt =~ '-h' ]] \
             && continue
 
-        local opt_arr=($(echo $opt \
+        local opt_arr
+        opt_arr=($(echo $opt \
             | sed -E "s/\s*\|.+//g" \
             | sed -E "s/[=|\s]*<.+>//g" \
             | tr ", " "\n"))
@@ -192,14 +185,17 @@ _setopts () {
         [[ ${#opt_arr[@]} != 2 ]] \
             && continue
 
-        local opt_var=$(echo ${opt_arr[1]} \
+        local opt_var
+        opt_var=$(echo ${opt_arr[1]} \
             | sed -E "s/^--//g" \
             | sed -E "s/\W/_/g" \
             | tr '[a-z]' '[A-Z]')
 
-        local opt_var_types=${opt_var}_TYPES[@]
+        local opt_var_types
+        opt_var_types=${opt_var}_TYPES[@]
 
-        local idx=0
+        local idx
+        idx=0
 
         for arg in ${args_arr[@]}; do
             case $arg in
@@ -233,7 +229,8 @@ _localbin () {
     export PATH=$CWD/.bin/depot_tools:$PATH
 
     # Use Python 2
-    local python_v=$(python --version \
+    local python_v
+    python_v=$(python --version \
         | sed "s|[a-z]\s*||ig" \
         | cut -d '.' -f 1)
 
