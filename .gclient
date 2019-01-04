@@ -8,9 +8,6 @@ solutions = [{
         "src/third_party/arcore-android-sdk/src": None
     },
     "custom_hooks": [{
-        "name": "binutils",
-        "condition": False
-    }, {
         "name": "gvr_static_shim_android_arm",
         "condition": False
     }, {

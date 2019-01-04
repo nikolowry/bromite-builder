@@ -160,8 +160,7 @@ build () {
     # GN_ARGS | Faster builds with no symbols and jumbo
     local gn_args_custom=(
         "target_cpu=\"$ARCH\""
-        'use_jumbo_build=true'
-        'linux_use_bundled_binutils=false')
+        'use_jumbo_build=true')
 
     local gn_args="$(cat $bromite_src/GN_ARGS \
         | tr "\n" " " \
