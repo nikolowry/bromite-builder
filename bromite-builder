@@ -72,6 +72,9 @@ fetch-sync () {
     [[ ! -e .gclient ]] \
         && fetch --nohooks android
 
+    # Debloated custom config
+    cp -f $CWD/.gclient .
+
     cd src
 
     # Reset tree
@@ -154,14 +157,19 @@ build () {
     export CHROMIUM_OUTPUT_DIR="out/Default_$ARCH"
     mkdir -p $CHROMIUM_OUTPUT_DIR
 
-    # Faster builds with no symbols and jumbo
-    local gn_args=$(cat $bromite_src/GN_ARGS \
+    # GN_ARGS | Faster builds with no symbols and jumbo
+    local gn_args_custom=(
+        "target_cpu=\"$ARCH\""
+        'use_jumbo_build=true'
+        'linux_use_bundled_binutils=false')
+
+    local gn_args="$(cat $bromite_src/GN_ARGS \
         | tr "\n" " " \
         | sed -e "s/enable_av1_decoder\=true\s*//g" \
-        | sed -e "s/symbol_level\=1/symbol_level\=0/g")
+        | sed -e "s/symbol_level\=1/symbol_level\=0/g")$(printf \
+            "%s " ${gn_args_custom[@]})"
 
-    gn gen "--args=target_cpu=\"$ARCH\" use_jumbo_build=true $gn_args" \
-        $CHROMIUM_OUTPUT_DIR
+    gn gen "--args=$gn_args" $CHROMIUM_OUTPUT_DIR
 
     autoninja -C $CHROMIUM_OUTPUT_DIR $TARGET
 }
