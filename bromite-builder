@@ -12,8 +12,8 @@ TARGET_TYPES=('chrome_modern_public_apk' 'chrome_public_apk'
     'monochrome_public_apk')
 TARGET=${TARGET_TYPES[0]}
 
-VERSION=
-VERSION_HASH=
+REVISION=
+REVISION_HASH=
 UPSTREAM=
 
 # Options | TODO: Add support for passing GN args in cli
@@ -22,14 +22,14 @@ opts=(
         | sed -E "s/\s/, /g"). Defaults to $ARCH"
     "-t, --target=<target> | Where Ninja <target> is: $(echo ${TARGET_TYPES[@]} \
         | sed -E "s/\s/, /g"). Defaults to $TARGET"
-    "-v, --version=<version> | Where <version> is a Bromite release tag. $( \
+    "-r, --revision=<revision> | Where <revision> is a Bromite release tag. $( \
         echo "Defaults to Bromite's latest release.")"
     "-u, --upstream | Use Bromite's git source instead of a release tag. $( \
         echo "If set, any Chromium release is accepted")"
     "-h, --help | Print help menu")
 
 # Constants
-DEFAULTS=('set-version' 'fetch-sync' 'prepare' 'build')
+DEFAULTS=('set-revision' 'fetch-sync' 'prepare' 'build')
 CWD=$(cd "$( dirname "$0" )" && pwd)
 BUILD_DIR=$CWD/build
 BASE_URL="https://github.com/bromite/bromite"
@@ -38,52 +38,52 @@ clean () {
     rm -rf $BUILD_DIR
 }
 
-set-version () {
+set-revision () {
     local url
 
     [[ $UPSTREAM ]] \
-        && VERSION_HASH=$(git ls-remote "$BASE_URL.git" HEAD \
+        && REVISION_HASH=$(git ls-remote "$BASE_URL.git" HEAD \
             | awk '{print $1}' \
             | sed -E "s/^(.{7}).+/\1/") \
-        && echo "Bromite set to git commit $VERSION_HASH"
+        && echo "Using Bromite git commit $REVISION_HASH"
 
-    [[ $UPSTREAM ]] && [[ $VERSION ]] \
-        && url="https://github.com/chromium/chromium/archive/$VERSION.tar.gz"
+    [[ $UPSTREAM ]] && [[ $REVISION ]] \
+        && url="https://github.com/chromium/chromium/archive/$REVISION.tar.gz"
 
     [[ ! ${url:-} ]] \
-        && url=$([[ $VERSION ]] \
-            && echo "$BASE_URL/archive/$VERSION.tar.gz" \
+        && url=$([[ $REVISION ]] \
+            && echo "$BASE_URL/archive/$REVISION.tar.gz" \
             || echo "$BASE_URL/releases/latest")
 
     local error_msg
 
-    [[ $VERSION ]] \
-        && error_msg="Error: Release v$VERSION not found" \
+    [[ $REVISION ]] \
+        && error_msg="Error: Release v$REVISION not found" \
         || error_msg='Error: Latest Bromite release not found. Check your network connection and try again'
 
     [[ $(curl -Lso /dev/null -I -w "%{http_code}" $url) != 200 ]] \
         && echo $error_msg \
         && exit 1
 
-    if [[ ! $VERSION ]]; then
+    if [[ ! $REVISION ]]; then
         local latest=$(curl -Lso /dev/null -w '%{url_effective}' $url)
-        VERSION=${latest##*/}
+        REVISION=${latest##*/}
     fi
 
-    echo "Version now set to $VERSION"
+    echo "Revision now set to v$REVISION"
 }
 
 fetch-sync () {
     mkdir -p $BUILD_DIR
     cd $BUILD_DIR
 
-    local url=$([[ $VERSION_HASH ]] \
+    local url=$([[ $REVISION_HASH ]] \
         && echo "https://api.github.com/repos/bromite/bromite/tarball/master" \
-        || echo "$BASE_URL/archive/$VERSION.tar.gz")
+        || echo "$BASE_URL/archive/$REVISION.tar.gz")
 
-    local tarname=$([[ $VERSION_HASH ]] \
-        && echo "bromite-$VERSION_HASH" \
-        || echo "bromite-$VERSION")
+    local tarname=$([[ $REVISION_HASH ]] \
+        && echo "bromite-$REVISION_HASH" \
+        || echo "bromite-$REVISION")
 
     # Fetch & Extract Bromite
     echo "Fetching Bromite Archive"
@@ -92,7 +92,7 @@ fetch-sync () {
     echo "Extracting Bromite Archive"
     tar -xf "$tarname.tar.gz"
 
-    [[ $VERSION_HASH ]] \
+    [[ $REVISION_HASH ]] \
         && rm -rf $tarname \
         && mv bromite-$tarname $tarname
 
@@ -112,7 +112,7 @@ fetch-sync () {
     git clean -fdxq --exclude=out
 
     # Accept any y/n prompts
-    echo 'y' | gclient sync --with_branch_heads --force --reset -r $VERSION
+    echo 'y' | gclient sync --with_branch_heads --force --reset -r $REVISION
 }
 
 prepare () {
@@ -123,9 +123,9 @@ prepare () {
     [[ $(command -v apt-get) ]] \
         && ./build/install-build-deps-android.sh
 
-    local bromite_dir=$([[ $VERSION_HASH ]] \
-        && echo "$BUILD_DIR/bromite-$VERSION_HASH" \
-        || echo "$BUILD_DIR/bromite-$VERSION")
+    local bromite_dir=$([[ $REVISION_HASH ]] \
+        && echo "$BUILD_DIR/bromite-$REVISION_HASH" \
+        || echo "$BUILD_DIR/bromite-$REVISION")
 
     # TODO: Determine support for building legacy releases.
     # Possibly blacklist v71.0.3578.115 if removing patch overrides
@@ -176,9 +176,9 @@ build () {
         && fetch-sync \
         && prepare
 
-    local bromite_dir=$([[ $VERSION_HASH ]] \
-        && echo "$BUILD_DIR/bromite-$VERSION_HASH" \
-        || echo "$BUILD_DIR/bromite-$VERSION")
+    local bromite_dir=$([[ $REVISION_HASH ]] \
+        && echo "$BUILD_DIR/bromite-$REVISION_HASH" \
+        || echo "$BUILD_DIR/bromite-$REVISION")
 
     local bromite_src=$([[ -d "$bromite_dir/build" ]] \
         && echo "$bromite_dir/build" \
@@ -307,8 +307,8 @@ main () {
 
     # Detect if 1st param of args is a valid function
     if [[ ${1:-} ]] && [[ $(_getcmds) =~ $1 ]]; then
-        [[ $1 != 'set-version' ]] && [[ $1 != 'clean' ]] \
-            && set-version
+        [[ $1 != 'set-revision' ]] && [[ $1 != 'clean' ]] \
+            && set-revision
         $1
         return
     fi
