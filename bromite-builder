@@ -7,10 +7,14 @@ IFS=$'\n\t'
 # Dynamic Vars for Options with inputs
 ARCH_TYPES=('arm' 'arm64' 'x86')
 ARCH=${ARCH_TYPES[0]}
+
 TARGET_TYPES=('chrome_modern_public_apk' 'chrome_public_apk'
     'monochrome_public_apk')
 TARGET=${TARGET_TYPES[0]}
+
 VERSION=
+VERSION_HASH=
+UPSTREAM=
 
 # Options | TODO: Add support for passing GN args in cli
 opts=(
@@ -18,29 +22,43 @@ opts=(
         | sed -E "s/\s/, /g"). Defaults to $ARCH"
     "-t, --target=<target> | Where Ninja <target> is: $(echo ${TARGET_TYPES[@]} \
         | sed -E "s/\s/, /g"). Defaults to $TARGET"
-    "-v, --version=<version> | Build version, defaults to latest Bromite release"
+    "-v, --version=<version> | Where <version> is a Bromite release tag. $( \
+        echo "Defaults to Bromite's latest release.")"
+    "-u, --upstream | Use Bromite's git source instead of a release tag. $( \
+        echo "If set, any Chromium release is accepted")"
     "-h, --help | Print help menu")
 
 # Constants
-DEFAULTS=('version' 'fetch-sync' 'prepare' 'build')
+DEFAULTS=('set-version' 'fetch-sync' 'prepare' 'build')
 CWD=$(cd "$( dirname "$0" )" && pwd)
 BUILD_DIR=$CWD/build
-BASE_URL="https://github.com/bromite"
+BASE_URL="https://github.com/bromite/bromite"
 
 clean () {
     rm -rf $BUILD_DIR
 }
 
-version () {
+set-version () {
     local url
+
+    [[ $UPSTREAM ]] \
+        && VERSION_HASH=$(git ls-remote "$BASE_URL.git" HEAD \
+            | awk '{print $1}' \
+            | sed -E "s/^(.{7}).+/\1/") \
+        && echo "Bromite set to git commit $VERSION_HASH"
+
+    [[ $UPSTREAM ]] && [[ $VERSION ]] \
+        && url="https://github.com/chromium/chromium/archive/$VERSION.tar.gz"
+
+    [[ ! ${url:-} ]] \
+        && url=$([[ $VERSION ]] \
+            && echo "$BASE_URL/archive/$VERSION.tar.gz" \
+            || echo "$BASE_URL/releases/latest")
+
     local error_msg
 
     [[ $VERSION ]] \
-        && url=$BASE_URL/bromite/archive/$VERSION.tar.gz \
-        || url=$BASE_URL/bromite/releases/latest
-
-    [[ $VERSION ]] \
-        && error_msg="Error: Bromite release version $VERSION not found" \
+        && error_msg="Error: Release v$VERSION not found" \
         || error_msg='Error: Latest Bromite release not found. Check your network connection and try again'
 
     [[ $(curl -Lso /dev/null -I -w "%{http_code}" $url) != 200 ]] \
@@ -52,18 +70,31 @@ version () {
         VERSION=${latest##*/}
     fi
 
-    echo "Version set to $VERSION"
+    echo "Version now set to $VERSION"
 }
 
 fetch-sync () {
     mkdir -p $BUILD_DIR
     cd $BUILD_DIR
 
-    # Fetch Bromite
-    curl -Lo bromite-$VERSION.tar.gz \
-        $BASE_URL/bromite/archive/$VERSION.tar.gz
+    local url=$([[ $VERSION_HASH ]] \
+        && echo "https://api.github.com/repos/bromite/bromite/tarball/master" \
+        || echo "$BASE_URL/archive/$VERSION.tar.gz")
 
-    tar -xf bromite-$VERSION.tar.gz
+    local tarname=$([[ $VERSION_HASH ]] \
+        && echo "bromite-$VERSION_HASH" \
+        || echo "bromite-$VERSION")
+
+    # Fetch & Extract Bromite
+    echo "Fetching Bromite Archive"
+    curl -Lso "$tarname.tar.gz" $url
+
+    echo "Extracting Bromite Archive"
+    tar -xf "$tarname.tar.gz"
+
+    [[ $VERSION_HASH ]] \
+        && rm -rf $tarname \
+        && mv bromite-$tarname $tarname
 
     mkdir -p chromium
     cd chromium
@@ -80,10 +111,6 @@ fetch-sync () {
     # Reset tree
     git clean -fdxq --exclude=out
 
-    # Install build deps if "apt-get" command detected
-    [[ $(command -v apt-get) ]] \
-        && ./build/install-build-deps-android.sh
-
     # Accept any y/n prompts
     echo 'y' | gclient sync --with_branch_heads --force --reset -r $VERSION
 }
@@ -92,28 +119,28 @@ prepare () {
     [[ ! -d $BUILD_DIR/chromium/src ]] \
         && fetch-sync
 
-    rm -rf $BUILD_DIR/patches
+    # Build deps if "apt-get" command detected
+    [[ $(command -v apt-get) ]] \
+        && ./build/install-build-deps-android.sh
+
+    local bromite_dir=$([[ $VERSION_HASH ]] \
+        && echo "$BUILD_DIR/bromite-$VERSION_HASH" \
+        || echo "$BUILD_DIR/bromite-$VERSION")
 
     # TODO: Determine support for building legacy releases.
     # Possibly blacklist v71.0.3578.115 if removing patch overrides
-    local bromite_src=$([[ -d $BUILD_DIR/bromite-$VERSION/build ]] \
-        && echo $BUILD_DIR/bromite-$VERSION/build \
-        || echo $BUILD_DIR/bromite-$VERSION)
+    local bromite_src=$([[ -d "$bromite_dir/build" ]] \
+        && echo "$bromite_dir/build" \
+        || echo "$bromite_dir")
 
     # Prep Patching
+    rm -rf $BUILD_DIR/patches
+
     cp -rf $bromite_src/patches \
         $BUILD_DIR/patches
 
     cp -rf $CWD/patches/. \
         $BUILD_DIR/patches
-
-    # TODO: Remove/modify after patch & legacy support issues are resolved
-    [[ ! -e $bromite_src/patches_list.txt ]] \
-        && mv -f $BUILD_DIR/patches/Remove-Sync-and-Translate-menu.patch \
-            $BUILD_DIR/patches/BRM020_Remove-Sync-and-Translate-menu.patch \
-        && mv -f $BUILD_DIR/patches/ungoogled-chromium-disable-safe-browsing.patch \
-            $BUILD_DIR/patches/BRM086_ungoogled-chromium-disable-safe-browsing.patch \
-        && rm -f $BUILD_DIR/patches/Bromite-adblock-engine.patch
 
     cd $BUILD_DIR/chromium/src
 
@@ -149,9 +176,13 @@ build () {
         && fetch-sync \
         && prepare
 
-    local bromite_src=$([[ -d $BUILD_DIR/bromite-$VERSION/build ]] \
-        && echo $BUILD_DIR/bromite-$VERSION/build \
-        || echo $BUILD_DIR/bromite-$VERSION)
+    local bromite_dir=$([[ $VERSION_HASH ]] \
+        && echo "$BUILD_DIR/bromite-$VERSION_HASH" \
+        || echo "$BUILD_DIR/bromite-$VERSION")
+
+    local bromite_src=$([[ -d "$bromite_dir/build" ]] \
+        && echo "$bromite_dir/build" \
+        || echo "$bromite_dir")
 
     cd $BUILD_DIR/chromium/src
     export CHROMIUM_OUTPUT_DIR="out/Default_$ARCH"
@@ -276,8 +307,8 @@ main () {
 
     # Detect if 1st param of args is a valid function
     if [[ ${1:-} ]] && [[ $(_getcmds) =~ $1 ]]; then
-        [[ $1 != 'version' ]] && [[ $1 != 'clean' ]] \
-            && version
+        [[ $1 != 'set-version' ]] && [[ $1 != 'clean' ]] \
+            && set-version
         $1
         return
     fi

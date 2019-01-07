@@ -37,10 +37,10 @@ Usage instructions are always available by running `./bromite-builder -h` or
 Usage: ./bromite-builder [command...] [options...]
 
 Where optional [command] is one of:
-    build, clean, fetch-sync, prepare, version
+    build, clean, fetch-sync, prepare, set-version
 
 If no [command] is set, the default command sequence will be executed:
-    - version
+    - set-version
     - fetch-sync
     - prepare
     - build
@@ -48,7 +48,8 @@ If no [command] is set, the default command sequence will be executed:
 Options:
     -a, --arch=<arch>          Where <arch> is: arm, arm64, x86. Defaults to arm
     -t, --target=<target>      Where Ninja <target> is: chrome_modern_public_apk, chrome_public_apk, monochrome_public_apk. Defaults to chrome_modern_public_apk
-    -v, --version=<version>    Build version, defaults to latest Bromite release
+    -v, --version=<version>    Where <version> is a Bromite release tag. Defaults to Bromite's latest release.
+    -u, --upstream             Use Bromite's git source instead of a release tag. If set, any Chromium release is accepted
     -h, --help                 Print help menu
 ```
 
