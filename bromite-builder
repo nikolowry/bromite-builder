@@ -8,6 +8,9 @@ IFS=$'\n\t'
 ARCH_TYPES=('arm' 'arm64' 'x86')
 ARCH=${ARCH_TYPES[0]}
 
+DARK_NAVBAR=
+PATCHES_DIR=
+
 TARGET_TYPES=('chrome_modern_public_apk' 'chrome_public_apk'
     'monochrome_public_apk')
 TARGET=${TARGET_TYPES[0]}
@@ -20,12 +23,14 @@ UPSTREAM=
 opts=(
     "-a, --arch=<arch> | Where <arch> is: $(echo ${ARCH_TYPES[@]} \
         | sed -E "s/\s/, /g"). Defaults to $ARCH"
+    "-d, --dark-navbar | Prefer a dark navigation bar over a white one"
+    "-p, --patches-dir=<dir> | Where <dir> is a path to a directory containing custom patches" \
     "-t, --target=<target> | Where Ninja <target> is: $(echo ${TARGET_TYPES[@]} \
         | sed -E "s/\s/, /g"). Defaults to $TARGET"
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. $( \
         echo "Defaults to Bromite's latest release.")"
     "-u, --upstream | Use Bromite's git source instead of a release tag. $( \
-        echo "If set, any Chromium release is accepted")"
+        echo "If set, any valid Chromium release tag can be used for <revision>")"
     "-h, --help | Print help menu")
 
 # Constants
@@ -127,8 +132,6 @@ prepare () {
         && echo "$BUILD_DIR/bromite-$REVISION_HASH" \
         || echo "$BUILD_DIR/bromite-$REVISION")
 
-    # TODO: Determine support for building legacy releases.
-    # Possibly blacklist v71.0.3578.115 if removing patch overrides
     local bromite_src=$([[ -d "$bromite_dir/build" ]] \
         && echo "$bromite_dir/build" \
         || echo "$bromite_dir")
@@ -139,8 +142,11 @@ prepare () {
     cp -rf $bromite_src/patches \
         $BUILD_DIR/patches
 
-    cp -rf $CWD/patches/. \
-        $BUILD_DIR/patches
+    [[ $DARK_NAVBAR ]] \
+        && cp -f $CWD/patches/Dark-Navbar.patch $BUILD_DIR/patches
+
+    [[ $PATCHES_DIR ]] && [[ -d $PATCHES_DIR ]] \
+        && cp -rf $PATCHES_DIR/. $BUILD_DIR/patches
 
     cd $BUILD_DIR/chromium/src
 
@@ -154,10 +160,15 @@ prepare () {
 
     # Add custom patches to patchlist
     if [[ -e $bromite_src/patches_list.txt ]]; then
-        for patchfile in $BUILD_DIR/patches/*.patch; do
-            [[ ! -e "$bromite_src/patches/$(basename $patchfile)" ]] \
-                && patchlist+=($patchfile)
-        done
+        [[ $DARK_NAVBAR ]] \
+            && patchlist+=($BUILD_DIR/patches/Dark-Navbar.patch)
+
+        if [[ $PATCHES_DIR ]] && [[ -d $PATCHES_DIR ]]; then
+            for patchfile in $PATCHES_DIR/*.patch; do
+                [[ ! -e "$bromite_src/patches/$(basename $patchfile)" ]] \
+                    && patchlist+=($patchfile)
+            done
+        fi
     fi
 
     # Apply Patches
@@ -193,14 +204,20 @@ build () {
         "target_cpu=\"$ARCH\""
         'use_jumbo_build=true')
 
-    local gn_args="$(cat $bromite_src/GN_ARGS \
-        | tr "\n" " " \
-        | sed -e "s/enable_av1_decoder\=true\s*//g" \
-        | sed -e "s/symbol_level\=1/symbol_level\=0/g")$(printf \
-            "%s " ${gn_args_custom[@]})"
+    # Get Bromite GN Args if they exist
+    local gn_args_bromite
+
+    [[ -e $bromite_src/GN_ARGS ]] \
+        && gn_args_bromite=$(cat $bromite_src/GN_ARGS \
+            | tr "\n" " " \
+            | sed -e "s/enable_av1_decoder\=true\s*//g" \
+            | sed -e "s/symbol_level\=1/symbol_level\=0/g") \
+        || gn_args_bromite=''
+
+    # Combine GN args
+    local gn_args="${gn_args_bromite}$(printf ' %s' ${gn_args_custom[@]})"
 
     gn gen "--args=$gn_args" $CHROMIUM_OUTPUT_DIR
-
     autoninja -C $CHROMIUM_OUTPUT_DIR $TARGET
 }
 
@@ -252,6 +269,32 @@ _setopts () {
             idx=$(( $idx + 1 ))
         done
     done
+
+    # No patches directory set, return
+    [[ ! $PATCHES_DIR ]] \
+        && return
+
+    local patches_dir_msg="Patches directory \"$PATCHES_DIR\" not found. Skipping"
+
+    # Patches directory absolute path and exists, return
+    if [[ $PATCHES_DIR = /* ]]; then
+        [[ ! -d $PATCHES_DIR ]] \
+            && echo $patches_dir_msg \
+            && export PATCHES_DIR=
+
+        return
+    fi
+
+    # Patches directory relative, update to absolute
+    local patches_dir_abspath=$(cd "$( dirname "$PATCHES_DIR" )" && pwd)
+    local patches_dirname=$(basename $PATCHES_DIR)
+
+    [[ ! -d "$patches_dir_abspath/$patches_dirname" ]] \
+            && echo $patches_dir_msg \
+            && export PATCHES_DIR= \
+            && return
+
+    export PATCHES_DIR="$patches_dir_abspath/$patches_dirname"
 }
 
 _localbin () {
