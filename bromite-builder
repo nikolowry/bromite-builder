@@ -114,7 +114,8 @@ fetch-sync () {
     cd src
 
     # Reset tree
-    git clean -fdxq --exclude=out
+    local exclude="out/Default_${REVISION}_${ARCH}"
+    git clean -fdxq --exclude=$exclude
 
     # Accept any y/n prompts
     echo 'y' | gclient sync --with_branch_heads --force --reset -r $REVISION
@@ -196,7 +197,7 @@ build () {
         || echo "$bromite_dir")
 
     cd $BUILD_DIR/chromium/src
-    export CHROMIUM_OUTPUT_DIR="out/Default_$ARCH"
+    export CHROMIUM_OUTPUT_DIR="out/Default_${REVISION}_${ARCH}"
     mkdir -p $CHROMIUM_OUTPUT_DIR
 
     # GN_ARGS | Faster builds with no symbols and jumbo
@@ -219,6 +220,17 @@ build () {
 
     gn gen "--args=$gn_args" $CHROMIUM_OUTPUT_DIR
     autoninja -C $CHROMIUM_OUTPUT_DIR $TARGET
+
+    local dist_dir="$CWD/dist/$REVISION"
+    local apk_basename=$(echo $TARGET \
+        | sed -e 's|_apk||g' \
+        | sed -e 's/^./\U&/' \
+        | sed -e 's/_./\U&/g' \
+        | sed -e 's/_//g')
+
+    mkdir -p $dist_dir
+    cp -f $CHROMIUM_OUTPUT_DIR/apks/$apk_basename.apk \
+        $dist_dir/$apk_basename-$REVISION-$arch.apk
 }
 
 _getcmds () {
@@ -281,7 +293,6 @@ _setopts () {
         [[ ! -d $PATCHES_DIR ]] \
             && echo $patches_dir_msg \
             && export PATCHES_DIR=
-
         return
     fi
 
