@@ -9,6 +9,7 @@ ARCH_TYPES=('arm' 'arm64' 'x86')
 ARCH=${ARCH_TYPES[0]}
 
 DARK_NAVBAR=
+GN_ARGS=
 PATCHES_DIR=
 
 TARGET_TYPES=('chrome_modern_public_apk' 'chrome_public_apk'
@@ -24,13 +25,14 @@ opts=(
     "-a, --arch=<arch> | Where <arch> is: $(echo ${ARCH_TYPES[@]} \
         | sed -E "s/\s/, /g"). Defaults to $ARCH"
     "-d, --dark-navbar | Prefer a dark navigation bar over a white one"
+    "-g, --gn-args=<args> | Where <args> is a string of GN build arguments"
     "-p, --patches-dir=<dir> | Where <dir> is a path to a directory containing custom patches" \
     "-t, --target=<target> | Where Ninja <target> is: $(echo ${TARGET_TYPES[@]} \
         | sed -E "s/\s/, /g"). Defaults to $TARGET"
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. $( \
         echo "Defaults to Bromite's latest release.")"
     "-u, --upstream | Use Bromite's git source instead of a release tag. $( \
-        echo "If set, any valid Chromium release tag can be used for --revision")"
+        echo "If set, any valid Chromium release tag can be used for <revision>")"
     "-h, --help | Print help menu")
 
 # Constants
@@ -202,7 +204,7 @@ build () {
     export CHROMIUM_OUTPUT_DIR="out/Default_${REVISION}_${ARCH}"
     mkdir -p $CHROMIUM_OUTPUT_DIR
 
-    # GN_ARGS | Faster builds with no symbols and jumbo
+    # Custom Bromite-Builder GN Args
     local gn_args_custom=(
         "target_cpu=\"$ARCH\""
         'use_jumbo_build=true')
@@ -217,20 +219,45 @@ build () {
             | sed -e "s/symbol_level\=1/symbol_level\=0/g") \
         || gn_args_bromite=''
 
-    # Combine GN args
-    local gn_args="${gn_args_bromite}$(printf ' %s' ${gn_args_custom[@]})"
+    # Combine default GN args
+    local gn_args=" ${gn_args_bromite}$(printf ' %s' ${gn_args_custom[@]})"
+
+    # Cast user GN args to array
+    local gn_args_user_arr=($(echo $GN_ARGS | tr " " "\n"))
+
+    # Update GN args with user-defined args taking priority
+    for arg in ${gn_args_user_arr[@]}; do
+        local arg_key=$(echo $arg \
+            | sed -E 's/=.+//')
+
+        [[ $arg_key == 'target_cpu' ]] \
+            && continue
+
+        [[ $(echo $gn_args | grep "$arg_key=") ]] \
+            && gn_args=$(echo $gn_args \
+                | sed -E "s/\\s$arg_key=\\S+/ $arg/g") \
+            || gn_args="${gn_args} ${arg}"
+    done
+
+    # Normalize Whitespace
+    gn_args=$(echo $gn_args \
+        | sed -E 's/\s+/ /g' \
+        | sed -E 's/^\s*//g')
 
     gn gen "--args=$gn_args" $CHROMIUM_OUTPUT_DIR
     autoninja -C $CHROMIUM_OUTPUT_DIR $TARGET
 
+    # Prep ./dist dir
     local dist_dir="$CWD/dist/$REVISION"
+    mkdir -p $dist_dir
+
+    # Copy and Rename APK to ./dist
     local apk_basename=$(echo $TARGET \
         | sed -e 's|_apk||g' \
         | sed -e 's/^./\U&/' \
         | sed -e 's/_./\U&/g' \
         | sed -e 's/_//g')
 
-    mkdir -p $dist_dir
     cp -f $CHROMIUM_OUTPUT_DIR/apks/$apk_basename.apk \
         $dist_dir/$apk_basename-$REVISION-$arch.apk
 }
@@ -242,17 +269,32 @@ _getcmds () {
 }
 
 _setopts () {
-    local args_arr=($(echo $@ \
-        | sed -E "s/=/ /g" \
-        | tr ' ' '\n'))
+    # Cast args to array for easier parsing
+    local args_arr=()
 
+    for arg in $*; do
+        [[ ! $arg =~ (--[a-z|-]+)= ]] \
+            && args_arr+=($arg) \
+            && continue
+
+        local arg_key=$(echo $arg \
+            | sed -E 's/=.+//')
+
+        local arg_value=$(echo $arg \
+            | sed -E "s/$arg_key=//")
+
+        args_arr+=($arg_key)
+        args_arr+=($arg_value)
+    done;
+
+    # Iterate options and assign var values to CLI args
     for opt in ${opts[@]}; do
         [[ $opt =~ '-h' ]] \
             && continue
 
         local opt_arr=($(echo $opt \
             | sed -E "s/\s*\|.+//g" \
-            | sed -E "s/[=|\s]*<.+>//g" \
+            | sed -E "s/=<.+>//g" \
             | tr ", " "\n"))
 
         [[ ${#opt_arr[@]} != 2 ]] \
@@ -270,7 +312,7 @@ _setopts () {
         for arg in ${args_arr[@]}; do
             case $arg in
                 ${opt_arr[0]}|${opt_arr[1]})
-                    if [[ ! $opt =~ [=|\s]*\<.+\> ]]; then
+                    if [[ ! $opt =~ \=\<.+\> ]]; then
                         export "$opt_var=1"
                     elif [[ ! ${!opt_var_types:-} ]] \
                             || [[ $(printf "%s\n" ${!opt_var_types} \
