@@ -30,7 +30,7 @@ opts=(
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. $( \
         echo "Defaults to Bromite's latest release.")"
     "-u, --upstream | Use Bromite's git source instead of a release tag. $( \
-        echo "If set, any valid Chromium release tag can be used for <revision>")"
+        echo "If set, any valid Chromium release tag can be used for --revision")"
     "-h, --help | Print help menu")
 
 # Constants
