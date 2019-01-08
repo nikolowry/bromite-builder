@@ -104,11 +104,13 @@ fetch-sync () {
     mkdir -p chromium
     cd chromium
 
-    # Fetch Chromium
+    # Fetch & Sync Chromium
+    echo "Fetching and Syncing Chromium"
+
     [[ ! -e .gclient ]] \
         && fetch --nohooks android
 
-    # Debloated custom config
+    # Use custom debloated gclient config
     cp -f $CWD/.gclient .
 
     cd src
