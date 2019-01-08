@@ -259,7 +259,7 @@ build () {
         | sed -e 's/_//g')
 
     cp -f $CHROMIUM_OUTPUT_DIR/apks/$apk_basename.apk \
-        $dist_dir/$apk_basename-$REVISION-$arch.apk
+        $dist_dir/$apk_basename-$REVISION-$ARCH.apk
 }
 
 _getcmds () {
