@@ -183,6 +183,9 @@ prepare () {
 
     # Apply Patches
     for patchfile in "${patchlist[@]}"; do
+        [[ "$(git apply --check "$patchfile" &>/dev/null; echo $?)" -gt 0 ]] \
+            && echo "Skipping, doesn't apply: $(basename "$patchfile")" \
+            && continue
         echo "Applying patch: $(basename "$patchfile")"
         git apply --whitespace=nowarn "$patchfile"
     done
