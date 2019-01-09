@@ -164,9 +164,9 @@ prepare () {
 
     # Patch List Order
     [[ -e $bromite_src/patches_list.txt ]] \
-        && patchlist=("$(cat "$bromite_src/patches_list.txt" \
-            | sed -e "s|^|$BUILD_DIR/patches/|g")") \
-        || patchlist=("$BUILD_DIR/patches/*.patch")
+        && patchlist=($(cat "$bromite_src/patches_list.txt" \
+            | sed -e "s|^|$BUILD_DIR/patches/|g")) \
+        || patchlist=($BUILD_DIR/patches/*.patch)
 
     # Add custom patches to patchlist
     if [[ -e $bromite_src/patches_list.txt ]]; then
@@ -197,7 +197,6 @@ build () {
     local bromite_src
 
     local gn_args_bromite
-    local gn_args_custom_arr
     local gn_args_user_arr
     local gn_args
 
@@ -220,11 +219,6 @@ build () {
     export CHROMIUM_OUTPUT_DIR="out/Default_${REVISION}_${ARCH}"
     mkdir -p "$CHROMIUM_OUTPUT_DIR"
 
-    # Custom Bromite-Builder GN Args
-    gn_args_custom_arr=(
-        "target_cpu=\"$ARCH\""
-        'use_jumbo_build=true')
-
     # Get Bromite GN Args if they exist
     [[ -e $bromite_src/GN_ARGS ]] \
         && gn_args_bromite=$(cat "$bromite_src/GN_ARGS" \
@@ -234,10 +228,11 @@ build () {
         || gn_args_bromite=''
 
     # Combine default GN args
-    gn_args=" ${gn_args_bromite}$(printf ' %s' "${gn_args_custom_arr[@]}")"
+    gn_args="target_cpu=\"$ARCH\" ${gn_args_bromite}$(printf \
+        ' %s' "${gn_args_custom_arr[@]}")"
 
     # Cast user GN args to array
-    gn_args_user_arr=("$(echo $GN_ARGS | tr " " "\n")")
+    gn_args_user_arr=($(echo $GN_ARGS | tr " " "\n"))
 
     # Update GN args with user-defined args taking priority
     for arg in "${gn_args_user_arr[@]}"; do
@@ -254,10 +249,9 @@ build () {
     done
 
     # Normalize Whitespace
-    gn_args=$(echo "$gn_args" \
-        | sed -E 's/\s+/ /g' \
-        | sed -E 's/^\s*//g')
+    gn_args=$(echo "$gn_args" | sed -E 's/\s+/ /g')
 
+    # Build
     gn gen "--args=$gn_args" "$CHROMIUM_OUTPUT_DIR"
     autoninja -C "$CHROMIUM_OUTPUT_DIR" "$TARGET"
 
