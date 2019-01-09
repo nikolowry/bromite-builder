@@ -20,19 +20,17 @@ REVISION=
 REVISION_HASH=
 UPSTREAM=
 
-# Options | TODO: Add support for passing GN args in cli
+# Options
 opts=(
-    "-a, --arch=<arch> | Where <arch> is: $(echo ${ARCH_TYPES[@]} \
+    "-a, --arch=<arch> | Where <arch> is: $(echo "${ARCH_TYPES[@]}" \
         | sed -E "s/\s/, /g"). Defaults to $ARCH"
     "-d, --dark-navbar | Prefer a dark navigation bar over a white one"
     "-g, --gn-args=<args> | Where <args> is a string of GN build arguments"
     "-p, --patches-dir=<dir> | Where <dir> is a path to a directory containing custom patches" \
-    "-t, --target=<target> | Where Ninja <target> is: $(echo ${TARGET_TYPES[@]} \
+    "-t, --target=<target> | Where Ninja <target> is: $(echo "${TARGET_TYPES[@]}" \
         | sed -E "s/\s/, /g"). Defaults to $TARGET"
-    "-r, --revision=<revision> | Where <revision> is a Bromite release tag. $( \
-        echo "Defaults to Bromite's latest release.")"
-    "-u, --upstream | Use Bromite's git source instead of a release tag. $( \
-        echo "If set, any valid Chromium release tag can be used for <revision>")"
+    "-r, --revision=<revision> | Where <revision> is a Bromite release tag. Defaults to Bromite's latest release."
+    "-u, --upstream | Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>"
     "-h, --help | Print help menu")
 
 # Constants
@@ -42,11 +40,13 @@ BUILD_DIR=$CWD/build
 BASE_URL="https://github.com/bromite/bromite"
 
 clean () {
-    rm -rf $BUILD_DIR
+    rm -rf "$BUILD_DIR"
 }
 
 set-revision () {
     local url
+    local error_msg
+    local latest
 
     [[ $UPSTREAM ]] \
         && REVISION_HASH=$(git ls-remote "$BASE_URL.git" HEAD \
@@ -62,46 +62,47 @@ set-revision () {
             && echo "$BASE_URL/archive/$REVISION.tar.gz" \
             || echo "$BASE_URL/releases/latest")
 
-    local error_msg
-
     [[ $REVISION ]] \
         && error_msg="Error: Release v$REVISION not found" \
         || error_msg='Error: Latest Bromite release not found. Check your network connection and try again'
 
-    [[ $(curl -Lso /dev/null -I -w "%{http_code}" $url) != 200 ]] \
-        && echo $error_msg \
+    [[ $(curl -Lso /dev/null -I -w "%{http_code}" "$url") != 200 ]] \
+        && echo "$error_msg" \
         && exit 1
 
     if [[ ! $REVISION ]]; then
-        local latest=$(curl -Lso /dev/null -w '%{url_effective}' $url)
+        latest=$(curl -Lso /dev/null -w '%{url_effective}' "$url")
         REVISION=${latest##*/}
     fi
 
-    echo "Revision now set to v$REVISION"
+    echo "Revision now set to $REVISION"
 }
 
 fetch-sync () {
-    mkdir -p $BUILD_DIR
-    cd $BUILD_DIR
+    local url
+    local tarname
 
-    local url=$([[ $REVISION_HASH ]] \
+    mkdir -p "$BUILD_DIR"
+    cd "$BUILD_DIR"
+
+    url=$([[ $REVISION_HASH ]] \
         && echo "https://api.github.com/repos/bromite/bromite/tarball/master" \
         || echo "$BASE_URL/archive/$REVISION.tar.gz")
 
-    local tarname=$([[ $REVISION_HASH ]] \
+    tarname=$([[ $REVISION_HASH ]] \
         && echo "bromite-$REVISION_HASH" \
         || echo "bromite-$REVISION")
 
     # Fetch & Extract Bromite
     echo "Fetching Bromite Archive"
-    curl -Lso "$tarname.tar.gz" $url
+    curl -Lso "$tarname.tar.gz" "$url"
 
     echo "Extracting Bromite Archive"
     tar -xf "$tarname.tar.gz"
 
     [[ $REVISION_HASH ]] \
-        && rm -rf $tarname \
-        && mv bromite-$tarname $tarname
+        && rm -rf "$tarname" \
+        && mv "bromite-$tarname" "$tarname"
 
     mkdir -p chromium
     cd chromium
@@ -113,19 +114,23 @@ fetch-sync () {
         && fetch --nohooks android
 
     # Use custom debloated gclient config
-    cp -f $CWD/.gclient .
+    cp -f "$CWD/.gclient" .
 
     cd src
 
     # Reset tree
     local exclude="out/Default_${REVISION}_${ARCH}"
-    git clean -fdxq --exclude=$exclude
+    git clean -fdxq --exclude="$exclude"
 
     # Accept any y/n prompts
-    echo 'y' | gclient sync --with_branch_heads --force --reset -r $REVISION
+    echo 'y' | gclient sync --with_branch_heads --force --reset -r "$REVISION"
 }
 
 prepare () {
+    local bromite_dir
+    local bromite_src
+    local patchlist
+
     [[ ! -d $BUILD_DIR/chromium/src ]] \
         && fetch-sync
 
@@ -133,133 +138,142 @@ prepare () {
     [[ $(command -v apt-get) ]] \
         && ./build/install-build-deps-android.sh
 
-    local bromite_dir=$([[ $REVISION_HASH ]] \
+    bromite_dir=$([[ $REVISION_HASH ]] \
         && echo "$BUILD_DIR/bromite-$REVISION_HASH" \
         || echo "$BUILD_DIR/bromite-$REVISION")
 
-    local bromite_src=$([[ -d "$bromite_dir/build" ]] \
+    bromite_src=$([[ -d "$bromite_dir/build" ]] \
         && echo "$bromite_dir/build" \
         || echo "$bromite_dir")
 
     # Prep Patching
-    rm -rf $BUILD_DIR/patches
+    rm -rf "$BUILD_DIR/patches"
 
-    cp -rf $bromite_src/patches \
-        $BUILD_DIR/patches
+    cp -rf "$bromite_src/patches" \
+        "$BUILD_DIR/patches"
 
     [[ $DARK_NAVBAR ]] \
-        && cp -f $CWD/patches/Dark-Navbar.patch $BUILD_DIR/patches
+        && cp -f "$CWD/patches/Dark-Navbar.patch" \
+            "$BUILD_DIR/patches"
 
     [[ $PATCHES_DIR ]] && [[ -d $PATCHES_DIR ]] \
-        && cp -rf $PATCHES_DIR/. $BUILD_DIR/patches
+        && cp -rf "$PATCHES_DIR/." \
+            "$BUILD_DIR/patches"
 
-    cd $BUILD_DIR/chromium/src
+    cd "$BUILD_DIR/chromium/src"
 
     # Patch List Order
-    local patchlist
-
     [[ -e $bromite_src/patches_list.txt ]] \
-        && patchlist=($(cat $bromite_src/patches_list.txt \
-            | sed -e "s|^|$BUILD_DIR/patches/|g")) \
-        || patchlist=($BUILD_DIR/patches/*.patch)
+        && patchlist=("$(cat "$bromite_src/patches_list.txt" \
+            | sed -e "s|^|$BUILD_DIR/patches/|g")") \
+        || patchlist=("$BUILD_DIR/patches/*.patch")
 
     # Add custom patches to patchlist
     if [[ -e $bromite_src/patches_list.txt ]]; then
         [[ $DARK_NAVBAR ]] \
-            && patchlist+=($BUILD_DIR/patches/Dark-Navbar.patch)
+            && patchlist+=("$BUILD_DIR/patches/Dark-Navbar.patch")
 
         if [[ $PATCHES_DIR ]] && [[ -d $PATCHES_DIR ]]; then
             for patchfile in $PATCHES_DIR/*.patch; do
-                [[ ! -e "$bromite_src/patches/$(basename $patchfile)" ]] \
-                    && patchlist+=($patchfile)
+                [[ ! -e "$bromite_src/patches/$(basename "$patchfile")" ]] \
+                    && patchlist+=("$patchfile")
             done
         fi
     fi
 
     # Apply Patches
-    for patchfile in ${patchlist[@]}; do
-        echo "Applying patch: $(basename $patchfile)"
-        git apply --whitespace=nowarn $patchfile
+    for patchfile in "${patchlist[@]}"; do
+        echo "Applying patch: $(basename "$patchfile")"
+        git apply --whitespace=nowarn "$patchfile"
     done
 
     # Copy Adblock Entries Header
-    cp -f $bromite_src/filters/adblock_entries.h \
+    cp -f "$bromite_src/filters/adblock_entries.h" \
         net/url_request
 }
 
 build () {
+    local bromite_dir
+    local bromite_src
+
+    local gn_args_bromite
+    local gn_args_custom_arr
+    local gn_args_user_arr
+    local gn_args
+
+    local dist_dir
+    local apk_basename
+
     [[ ! -d $BUILD_DIR/chromium/src ]] \
         && fetch-sync \
         && prepare
 
-    local bromite_dir=$([[ $REVISION_HASH ]] \
+    bromite_dir=$([[ $REVISION_HASH ]] \
         && echo "$BUILD_DIR/bromite-$REVISION_HASH" \
         || echo "$BUILD_DIR/bromite-$REVISION")
 
-    local bromite_src=$([[ -d "$bromite_dir/build" ]] \
+    bromite_src=$([[ -d "$bromite_dir/build" ]] \
         && echo "$bromite_dir/build" \
         || echo "$bromite_dir")
 
-    cd $BUILD_DIR/chromium/src
+    cd "$BUILD_DIR/chromium/src"
     export CHROMIUM_OUTPUT_DIR="out/Default_${REVISION}_${ARCH}"
-    mkdir -p $CHROMIUM_OUTPUT_DIR
+    mkdir -p "$CHROMIUM_OUTPUT_DIR"
 
     # Custom Bromite-Builder GN Args
-    local gn_args_custom=(
+    gn_args_custom_arr=(
         "target_cpu=\"$ARCH\""
         'use_jumbo_build=true')
 
     # Get Bromite GN Args if they exist
-    local gn_args_bromite
-
     [[ -e $bromite_src/GN_ARGS ]] \
-        && gn_args_bromite=$(cat $bromite_src/GN_ARGS \
+        && gn_args_bromite=$(cat "$bromite_src/GN_ARGS" \
             | tr "\n" " " \
             | sed -e "s/enable_av1_decoder\=true\s*//g" \
             | sed -e "s/symbol_level\=1/symbol_level\=0/g") \
         || gn_args_bromite=''
 
     # Combine default GN args
-    local gn_args=" ${gn_args_bromite}$(printf ' %s' ${gn_args_custom[@]})"
+    gn_args=" ${gn_args_bromite}$(printf ' %s' "${gn_args_custom_arr[@]}")"
 
     # Cast user GN args to array
-    local gn_args_user_arr=($(echo $GN_ARGS | tr " " "\n"))
+    gn_args_user_arr=("$(echo $GN_ARGS | tr " " "\n")")
 
     # Update GN args with user-defined args taking priority
-    for arg in ${gn_args_user_arr[@]}; do
-        local arg_key=$(echo $arg \
-            | sed -E 's/=.+//')
+    for arg in "${gn_args_user_arr[@]}"; do
+        local arg_key
+        arg_key=$(echo "$arg" | sed -E 's/=.+//')
 
         [[ $arg_key == 'target_cpu' ]] \
             && continue
 
-        [[ $(echo $gn_args | grep "$arg_key=") ]] \
-            && gn_args=$(echo $gn_args \
+        [[ $(echo "$gn_args" | grep "$arg_key=") ]] \
+            && gn_args=$(echo "$gn_args" \
                 | sed -E "s/\\s$arg_key=\\S+/ $arg/g") \
             || gn_args="${gn_args} ${arg}"
     done
 
     # Normalize Whitespace
-    gn_args=$(echo $gn_args \
+    gn_args=$(echo "$gn_args" \
         | sed -E 's/\s+/ /g' \
         | sed -E 's/^\s*//g')
 
-    gn gen "--args=$gn_args" $CHROMIUM_OUTPUT_DIR
-    autoninja -C $CHROMIUM_OUTPUT_DIR $TARGET
+    gn gen "--args=$gn_args" "$CHROMIUM_OUTPUT_DIR"
+    autoninja -C "$CHROMIUM_OUTPUT_DIR" "$TARGET"
 
     # Prep ./dist dir
-    local dist_dir="$CWD/dist/$REVISION"
-    mkdir -p $dist_dir
+    dist_dir="$CWD/dist/$REVISION"
+    mkdir -p "$dist_dir"
 
     # Copy and Rename APK to ./dist
-    local apk_basename=$(echo $TARGET \
+    apk_basename=$(echo "$TARGET" \
         | sed -e 's|_apk||g' \
         | sed -e 's/^./\U&/' \
         | sed -e 's/_./\U&/g' \
         | sed -e 's/_//g')
 
-    cp -f $CHROMIUM_OUTPUT_DIR/apks/$apk_basename.apk \
-        $dist_dir/$apk_basename-$REVISION-$ARCH.apk
+    cp -f "$CHROMIUM_OUTPUT_DIR/apks/$apk_basename.apk" \
+        "$dist_dir/$apk_basename-$REVISION-$ARCH.apk"
 }
 
 _getcmds () {
@@ -274,25 +288,25 @@ _setopts () {
 
     for arg in $*; do
         [[ ! $arg =~ (--[a-z|-]+)= ]] \
-            && args_arr+=($arg) \
+            && args_arr+=("$arg") \
             && continue
 
-        local arg_key=$(echo $arg \
-            | sed -E 's/=.+//')
+        local arg_key
+        local arg_value
 
-        local arg_value=$(echo $arg \
-            | sed -E "s/$arg_key=//")
+        arg_key=$(echo "$arg" | sed -E 's/=.+//')
+        arg_value=$(echo "$arg" | sed -E "s/$arg_key=//")
 
-        args_arr+=($arg_key)
-        args_arr+=($arg_value)
+        args_arr+=("$arg_key")
+        args_arr+=("$arg_value")
     done;
 
     # Iterate options and assign var values to CLI args
-    for opt in ${opts[@]}; do
+    for opt in "${opts[@]}"; do
         [[ $opt =~ '-h' ]] \
             && continue
 
-        local opt_arr=($(echo $opt \
+        local opt_arr=($(echo "$opt" \
             | sed -E "s/\s*\|.+//g" \
             | sed -E "s/=<.+>//g" \
             | tr ", " "\n"))
@@ -300,16 +314,18 @@ _setopts () {
         [[ ${#opt_arr[@]} != 2 ]] \
             && continue
 
-        local opt_var=$(echo ${opt_arr[1]} \
+        local opt_var
+        local opt_var_types
+        local idx=0
+
+        opt_var=$(echo "${opt_arr[1]}" \
             | sed -E "s/^--//g" \
             | sed -E "s/\W/_/g" \
             | tr '[a-z]' '[A-Z]')
 
-        local opt_var_types=${opt_var}_TYPES[@]
+        opt_var_types=${opt_var}_TYPES[@]
 
-        local idx=0
-
-        for arg in ${args_arr[@]}; do
+        for arg in "${args_arr[@]}"; do
             case $arg in
                 ${opt_arr[0]}|${opt_arr[1]})
                     if [[ ! $opt =~ \=\<.+\> ]]; then
@@ -322,7 +338,7 @@ _setopts () {
                     ;;
             esac
 
-            idx=$(( $idx + 1 ))
+            idx=$(( "$idx" + 1 ))
         done
     done
 
@@ -330,22 +346,26 @@ _setopts () {
     [[ ! $PATCHES_DIR ]] \
         && return
 
-    local patches_dir_msg="Patches directory \"$PATCHES_DIR\" not found. Skipping"
+    local patches_dir_msg
+    local patches_dir_abspath
+    local patches_dirname
+
+    patches_dir_msg="Patches directory \"$PATCHES_DIR\" not found. Skipping"
 
     # Patches directory absolute path and exists, return
     if [[ $PATCHES_DIR = /* ]]; then
         [[ ! -d $PATCHES_DIR ]] \
-            && echo $patches_dir_msg \
+            && echo "$patches_dir_msg" \
             && export PATCHES_DIR=
         return
     fi
 
     # Patches directory relative, update to absolute
-    local patches_dir_abspath=$(cd "$( dirname "$PATCHES_DIR" )" && pwd)
-    local patches_dirname=$(basename $PATCHES_DIR)
+    patches_dir_abspath=$(cd "$( dirname "$PATCHES_DIR" )" && pwd)
+    patches_dirname=$(basename $PATCHES_DIR)
 
     [[ ! -d "$patches_dir_abspath/$patches_dirname" ]] \
-            && echo $patches_dir_msg \
+            && echo "$patches_dir_msg" \
             && export PATCHES_DIR= \
             && return
 
@@ -353,25 +373,27 @@ _setopts () {
 }
 
 _localbin () {
-    mkdir -p $CWD/.bin
+    local python_v
+
+    mkdir -p "$CWD/.bin"
 
     # Depot Tools
     [[ ! -d $CWD/.bin/depot_tools ]] \
-        && cd $CWD/.bin \
+        && cd "$CWD/.bin" \
         && git clone -q https://chromium.googlesource.com/chromium/tools/depot_tools.git
 
-    cd $CWD/.bin/depot_tools
+    cd "$CWD/.bin/depot_tools"
     git pull -q
 
     export PATH=$CWD/.bin/depot_tools:$PATH
 
     # Use Python 2
-    local python_v=$(python --version \
+    python_v=$(python --version \
         | sed "s|[a-z]\s*||ig" \
         | cut -d '.' -f 1)
 
     [[ $python_v != 2 ]] && [[ $(command -v python2) ]] \
-        && ln -sf $(which python2) $CWD/.bin/python \
+        && ln -sf "$(command -v python2)" "$CWD/.bin/python" \
         && export PATH=$CWD/.bin:$PATH
 }
 
@@ -383,22 +405,22 @@ Where optional [command] is one of:
     $(_getcmds | sed -E "s/\s/, /g")
 
 If no [command] is set, the default command sequence will be executed:
-$(printf "    - %s\n" ${DEFAULTS[@]})
+$(printf "    - %s\n" "${DEFAULTS[@]}")
 
 Options:
-$(printf "    %s\n" ${opts[@]} | column -t -s "|")
+$(printf "    %s\n" "${opts[@]}" | column -t -s "|")
 
 HEREDOC
 }
 
 main () {
     # Help Menu
-    [[ $@ =~ -h|--help ]] \
+    [[ $(echo "$@") =~ -h|--help ]] \
         && _help \
         && return
 
     # Set Options
-    _setopts $@
+    _setopts "$@"
 
     # Setup Local bin
     _localbin
@@ -412,10 +434,10 @@ main () {
     fi
 
     # No command detected, run default sequence
-    for cmd in ${DEFAULTS[@]}; do
-        eval $cmd
+    for cmd in "${DEFAULTS[@]}"; do
+        eval "$cmd"
     done
 }
 
 # Entry Function
-main $@
+main "$@"
