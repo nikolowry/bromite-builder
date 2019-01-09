@@ -47,12 +47,12 @@ If no [command] is set, the default command sequence will be executed:
 
 Options:
     -a, --arch=<arch>            Where <arch> is: arm, arm64, x86. Defaults to arm
-    -d, --dark-navbar            Prefer a dark navigation bar over a white one
     -g, --gn-args=<args>         Where <args> is a string of GN build arguments
     -p, --patches-dir=<dir>      Where <dir> is a path to a directory containing custom patches
     -t, --target=<target>        Where Ninja <target> is: chrome_modern_public_apk, chrome_public_apk, monochrome_public_apk. Defaults to chrome_modern_public_apk
     -r, --revision=<revision>    Where <revision> is a Bromite release tag. Defaults to Bromite's latest release.
-    -u, --upstream               Use Bromite's git source instead of a release tag. If set, any valid Chromium release tag can be used for <revision>
+    --upstream                   Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>
+    --dark-navbar                Prefer a dark navigation bar over a white one
     -h, --help                   Print help menu
 ```
 
@@ -61,8 +61,7 @@ Options:
 Builds produced with `bromite-builder` differ from official Bromite releases with the following:
 
 - Retains Chromium branding and namespace
-- Optionally reverts the white Navigation Bar in the Material Design Refresh (MD2) to black with option `--dark-navbar` or `-d`
-- Symbols are turned off and Jumbo builds are enabled for faster build times
+- Optionally revert the white Navigation Bar in the Material Design Refresh (MD2) to black with option `--dark-navbar`
 
 ## <a name="resources"></a>Resources
 

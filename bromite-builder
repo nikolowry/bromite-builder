@@ -24,13 +24,13 @@ UPSTREAM=
 opts=(
     "-a, --arch=<arch> | Where <arch> is: $(echo "${ARCH_TYPES[@]}" \
         | sed -E "s/\s/, /g"). Defaults to $ARCH"
-    "-d, --dark-navbar | Prefer a dark navigation bar over a white one"
     "-g, --gn-args=<args> | Where <args> is a string of GN build arguments"
     "-p, --patches-dir=<dir> | Where <dir> is a path to a directory containing custom patches" \
     "-t, --target=<target> | Where Ninja <target> is: $(echo "${TARGET_TYPES[@]}" \
         | sed -E "s/\s/, /g"). Defaults to $TARGET"
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. Defaults to Bromite's latest release."
-    "-u, --upstream | Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>"
+    "--upstream | Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>"
+    "--dark-navbar | Prefer a dark navigation bar over a white one"
     "-h, --help | Print help menu")
 
 # Constants
@@ -270,12 +270,6 @@ build () {
         "$dist_dir/$apk_basename-$REVISION-$ARCH.apk"
 }
 
-_getcmds () {
-    echo $(typeset -f \
-        | awk '/ \(\) $/ && !/^(main) / {print $1}' \
-        | sed -E "s/(_.+\s*)//g")
-}
-
 _setopts () {
     # Cast args to array for easier parsing
     local args_arr=()
@@ -306,7 +300,7 @@ _setopts () {
             | tr ", " "\n"))
 
         [[ ${#opt_arr[@]} != 2 ]] \
-            && continue
+            && opt_arr+=("${opt_arr[0]}")
 
         local opt_var
         local opt_var_types
@@ -336,6 +330,10 @@ _setopts () {
         done
     done
 
+    _localpatches
+}
+
+_localpatches () {
     # No patches directory set, return
     [[ ! $PATCHES_DIR ]] \
         && return
@@ -389,6 +387,12 @@ _localbin () {
     [[ $python_v != 2 ]] && [[ $(command -v python2) ]] \
         && ln -sf "$(command -v python2)" "$CWD/.bin/python" \
         && export PATH=$CWD/.bin:$PATH
+}
+
+_getcmds () {
+    echo $(typeset -f \
+        | awk '/ \(\) $/ && !/^(main) / {print $1}' \
+        | sed -E "s/(_.+\s*)//g")
 }
 
 _help () {
