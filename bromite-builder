@@ -223,7 +223,6 @@ build () {
     [[ -e $bromite_src/GN_ARGS ]] \
         && gn_args_bromite=$(cat "$bromite_src/GN_ARGS" \
             | tr "\n" " " \
-            | sed -e "s/enable_av1_decoder\=true\s*//g" \
             | sed -e "s/symbol_level\=1/symbol_level\=0/g") \
         || gn_args_bromite=''
 
