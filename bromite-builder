@@ -204,6 +204,7 @@ build () {
     local gn_args
 
     local dist_dir
+    local dist_apk_basename
     local apk_basename
 
     [[ ! -d $BUILD_DIR/chromium/src ]] \
@@ -268,8 +269,14 @@ build () {
         | sed -e 's/_./\U&/g' \
         | sed -e 's/_//g')
 
+    [[ $DARK_NAVBAR ]] \
+        && dist_apk_basename="$apk_basename-DarkNavbar" \
+        || dist_apk_basename="$apk_basename"
+
+    dist_apk_basename="$dist_apk_basename-$REVISION-$ARCH"
+
     cp -f "$CHROMIUM_OUTPUT_DIR/apks/$apk_basename.apk" \
-        "$dist_dir/$apk_basename-$REVISION-$ARCH.apk"
+        "$dist_dir/$dist_apk_basename.apk"
 }
 
 _setopts () {
