@@ -10,16 +10,17 @@ Utility script for building [Bromite]( https://github.com/bromite/bromite) relea
 
 ## <a name="requirements"></a>Requirements
 
-- A 64-bit Intel machine running Linux with at least 8GB of RAM. More than 16GB is highly recommended.
+- A 64-bit Intel machine running Linux with at least 8GB of RAM.
+More than 16GB is highly recommended.
 - At least 100GB of free disk space.
 - You must have Git and Python 2 installed already.
 
 ## <a name="setup"></a>Setup
 
-Ubuntu users' systems will be bootstrapped via Chromium's 
+Ubuntu users' systems will be bootstrapped via Chromium's
 [`build/install-build-deps-android.sh`](https://chromium.googlesource.com/chromium/src.git/+/master/build/install-build-deps-android.sh)
 
-All other distro users should follow Chromium's 
+All other distro users should follow Chromium's
 [Notes For Other Distros](https://chromium.googlesource.com/chromium/src/+/master/docs/linux_build_instructions.md#notes)
 
 Checking out the repo:
@@ -30,7 +31,7 @@ cd bromite-builder
 
 ## <a name="usage"></a>Usage
 
-Usage instructions are always available by running `./bromite-builder -h` or 
+Usage instructions are always available by running `./bromite-builder -h` or
 `./bromite-builder --help`
 
 ```
@@ -58,10 +59,14 @@ Options:
 
 ## <a name="notes"></a>Notes
 
-Builds produced with `bromite-builder` differ from official Bromite releases with the following:
+Builds produced with `bromite-builder` differ from official Bromite releases with
+the following:
 
 - Retains Chromium branding and namespace
-- Optionally revert the white Navigation Bar in the Material Design Refresh (MD2) to black with option `--dark-navbar`
+- Optionally revert the white Navigation Bar in the Material Design Refresh (MD2)
+to black with option `--dark-navbar`
+- Symbols are turned off for faster build times. For even faster builds on
+`arm64` and `x86`, build with option `--gn-args="use_jumbo_build=true"`
 
 ## <a name="resources"></a>Resources
 
