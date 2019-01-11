@@ -259,7 +259,7 @@ build () {
     autoninja -C "$CHROMIUM_OUTPUT_DIR" "$TARGET"
 
     # Prep ./dist dir
-    dist_dir="$CWD/dist/$REVISION"
+    dist_dir="$CWD/dist"
     mkdir -p "$dist_dir"
 
     # Copy and Rename APK to ./dist
@@ -343,13 +343,13 @@ _setopts () {
 }
 
 _localpatches () {
-    # No patches directory set, return
-    [[ ! $PATCHES_DIR ]] \
-        && return
-
     local patches_dir_msg
     local patches_dir_abspath
     local patches_dirname
+
+    # No patches directory set, return
+    [[ ! $PATCHES_DIR ]] \
+        && return
 
     patches_dir_msg="Patches directory \"$PATCHES_DIR\" not found. Skipping"
 
