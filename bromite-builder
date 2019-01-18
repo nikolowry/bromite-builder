@@ -110,7 +110,9 @@ fetch-sync () {
     # Fetch & Sync Chromium
     echo "Fetching and Syncing Chromium"
 
-    [[ ! -e .gclient ]] \
+    # Fetch does not support partial checks, delete and start over (crbug.com/230691)
+    [[ ! -e .gclient ]] || [[ ! -e .gclient_entries ]] || [[ ! -d .cipd ]] \
+        && rm -rf ../chromium/{*,.g*,.c*} \
         && fetch --nohooks android
 
     # Use custom debloated gclient config
