@@ -381,6 +381,7 @@ _localbin () {
     # Depot Tools
     [[ ! -d $CWD/.bin/depot_tools ]] \
         && cd "$CWD/.bin" \
+        && echo "Fetching Depot Tools" \
         && git clone -q https://chromium.googlesource.com/chromium/tools/depot_tools.git
 
     cd "$CWD/.bin/depot_tools"
