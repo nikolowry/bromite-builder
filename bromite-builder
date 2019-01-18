@@ -115,7 +115,7 @@ fetch-sync () {
 
     # Use custom debloated gclient config
     cp -f "$CWD/.gclientconfig" .gclient
-    return
+
     cd src
 
     # Reset tree
