@@ -1,7 +1,7 @@
 diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res/values/colors.xml
---- a/chrome/android/java/res/values/colors.xml
-+++ b/chrome/android/java/res/values/colors.xml
-@@ -28,7 +28,6 @@
+--- a/chrome/android/java/res/values/colors.xml	2019-02-14 21:38:56.079634870 -0500
++++ b/chrome/android/java/res/values/colors.xml	2019-02-14 22:47:29.909452272 -0500
+@@ -29,7 +29,6 @@
  
      <!-- Modern color palette -->
      <color name="black_alpha_11">#1D000000</color>
@@ -9,7 +9,7 @@ diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res
      <color name="black_alpha_20">#33000000</color>
      <color name="black_alpha_24">#3D000000</color>
      <color name="black_alpha_30">#4D000000</color>
-@@ -192,8 +191,8 @@
+@@ -195,8 +194,8 @@
      <color name="image_viewer_bg">#0E0E0E</color>
      <color name="modern_blue_600_alpha_38_opaque">#A8CAF6</color>
      <color name="toolbar_shadow_color">@color/black_alpha_11</color>
@@ -18,11 +18,11 @@ diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res
 +    <color name="bottom_system_nav_color">@android:color/black</color>
 +    <color name="bottom_system_nav_divider_color">@android:color/black</color>
      <color name="search_box_hint">@color/default_text_color_secondary</color>
-     <color name="placeholder_thumbnail_bg_color">#DADCE0</color>
+     <color name="thumbnail_placeholder_on_white_bg">@color/modern_grey_100</color>
      <color name="clear_browsing_data_selected_tab_color">@color/modern_blue_600</color>
 diff -rupN a/chrome/android/java/res/values-v27/styles.xml b/chrome/android/java/res/values-v27/styles.xml
---- a/chrome/android/java/res/values-v27/styles.xml
-+++ b/chrome/android/java/res/values-v27/styles.xml
+--- a/chrome/android/java/res/values-v27/styles.xml	2019-02-14 21:39:30.782966649 -0500
++++ b/chrome/android/java/res/values-v27/styles.xml	2019-02-14 21:41:22.709628333 -0500
 @@ -9,27 +9,27 @@
          <!--suppress NewApi: crbug.com/856861-->
          <item name="android:navigationBarDividerColor">@color/bottom_system_nav_divider_color</item>
