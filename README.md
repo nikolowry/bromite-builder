@@ -54,6 +54,7 @@ Options:
     -r, --revision=<revision>    Where <revision> is a Bromite release tag. Defaults to Bromite's latest release.
     --upstream                   Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>
     --dark-navbar                Prefer a dark navigation bar over a white one
+    --no-javalite                Use Protobuf's full Java code generator instead of Java Lite
     -h, --help                   Print help menu
 ```
 
@@ -63,10 +64,11 @@ Builds produced with `bromite-builder` differ from official Bromite releases wit
 the following:
 
 - Retains Chromium branding and namespace
-- Optionally revert the white Navigation Bar in the Material Design Refresh (MD2)
-to black with option `--dark-navbar`
 - Symbols are turned off for faster build times. For even faster builds on
-`arm64` and `x86`, build with option `--gn-args="use_jumbo_build=true"`
+`arm64` and `x86`, build with option `--gn-args="use_jumbo_build=true"
+`- Optionally revert the white Navigation Bar in the Material Design Refresh (MD2)
+to black with option `--dark-navbar`
+- Optionally prefer Protobuf's full Java runtime with option `--no-javalite`
 
 ## <a name="resources"></a>Resources
 
