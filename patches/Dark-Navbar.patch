@@ -1,14 +1,6 @@
 diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res/values/colors.xml
 --- a/chrome/android/java/res/values/colors.xml	2019-02-14 21:38:56.079634870 -0500
 +++ b/chrome/android/java/res/values/colors.xml	2019-02-14 22:47:29.909452272 -0500
-@@ -29,7 +29,6 @@
- 
-     <!-- Modern color palette -->
-     <color name="black_alpha_11">#1D000000</color>
--    <color name="black_alpha_12">#1F000000</color>
-     <color name="black_alpha_20">#33000000</color>
-     <color name="black_alpha_24">#3D000000</color>
-     <color name="black_alpha_30">#4D000000</color>
 @@ -195,8 +194,8 @@
      <color name="image_viewer_bg">#0E0E0E</color>
      <color name="modern_blue_600_alpha_38_opaque">#A8CAF6</color>
