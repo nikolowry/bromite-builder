@@ -1,49 +1,24 @@
 diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res/values/colors.xml
---- a/chrome/android/java/res/values/colors.xml	2019-02-14 21:38:56.079634870 -0500
-+++ b/chrome/android/java/res/values/colors.xml	2019-02-14 22:47:29.909452272 -0500
-@@ -195,8 +194,8 @@
+--- a/chrome/android/java/res/values/colors.xml	2019-04-17 09:01:06.919961000 -0400
++++ b/chrome/android/java/res/values/colors.xml	2019-04-17 11:19:53.193272960 -0400
+@@ -199,8 +199,8 @@
+     <color name="media_viewer_bg">#000000</color>
      <color name="image_viewer_bg">#0E0E0E</color>
      <color name="modern_blue_600_alpha_38_opaque">#A8CAF6</color>
-     <color name="toolbar_shadow_color">@color/black_alpha_11</color>
 -    <color name="bottom_system_nav_color">@android:color/white</color>
 -    <color name="bottom_system_nav_divider_color">@color/black_alpha_12</color>
 +    <color name="bottom_system_nav_color">@android:color/black</color>
 +    <color name="bottom_system_nav_divider_color">@android:color/black</color>
      <color name="search_box_hint">@color/default_text_color_secondary</color>
-     <color name="thumbnail_placeholder_on_white_bg">@color/modern_grey_100</color>
+     <color name="thumbnail_placeholder_on_primary_bg">@color/modern_secondary_color</color>
      <color name="clear_browsing_data_selected_tab_color">@color/modern_blue_600</color>
-diff -rupN a/chrome/android/java/res/values-v27/styles.xml b/chrome/android/java/res/values-v27/styles.xml
---- a/chrome/android/java/res/values-v27/styles.xml	2019-02-14 21:39:30.782966649 -0500
-+++ b/chrome/android/java/res/values-v27/styles.xml	2019-02-14 21:41:22.709628333 -0500
-@@ -9,27 +9,27 @@
-         <!--suppress NewApi: crbug.com/856861-->
-         <item name="android:navigationBarDividerColor">@color/bottom_system_nav_divider_color</item>
-         <!--suppress NewApi: crbug.com/856861-->
--        <item name="android:windowLightNavigationBar">true</item>
-+        <item name="android:windowLightNavigationBar">false</item>
-     </style>
-     <style name="FullscreenWhite" parent="FullscreenWhiteBase">
-         <item name="android:navigationBarColor">@color/bottom_system_nav_color</item>
-         <!--suppress NewApi: crbug.com/856861-->
-         <item name="android:navigationBarDividerColor">@color/bottom_system_nav_divider_color</item>
-         <!--suppress NewApi: crbug.com/856861-->
--        <item name="android:windowLightNavigationBar">true</item>
-+        <item name="android:windowLightNavigationBar">false</item>
-     </style>
-     <style name="ThemeWithActionBar" parent="ThemeWithActionBarBase">
-         <item name="android:navigationBarColor">@color/bottom_system_nav_color</item>
-         <!--suppress NewApi: crbug.com/856861-->
-         <item name="android:navigationBarDividerColor">@color/bottom_system_nav_divider_color</item>
-         <!--suppress NewApi: crbug.com/856861-->
--        <item name="android:windowLightNavigationBar">true</item>
-+        <item name="android:windowLightNavigationBar">false</item>
-     </style>
-     <style name="DialogWhenLarge" parent="DialogWhenLargeBase">
-         <item name="android:navigationBarColor">@color/bottom_system_nav_color</item>
-         <!--suppress NewApi: crbug.com/856861-->
-         <item name="android:navigationBarDividerColor">@color/bottom_system_nav_divider_color</item>
-         <!--suppress NewApi: crbug.com/856861-->
--        <item name="android:windowLightNavigationBar">true</item>
-+        <item name="android:windowLightNavigationBar">false</item>
-     </style>
+diff -rupN a/chrome/android/java/res/values/values.xml b/chrome/android/java/res/values/values.xml
+--- a/chrome/android/java/res/values/values.xml	2019-04-17 11:02:50.799984000 -0400
++++ b/chrome/android/java/res/values/values.xml	2019-04-17 11:18:31.053276604 -0400
+@@ -94,5 +94,5 @@
+     <integer name="download_infobar_bar_fill_out_delay">200</integer>
+ 
+     <!-- Bottom navigation bar styling. -->
+-    <bool name="window_light_navigation_bar">true</bool>
++    <bool name="window_light_navigation_bar">false</bool>
  </resources>
