@@ -68,7 +68,7 @@ the following:
 `arm64` and `x86`, build with option `--gn-args="use_jumbo_build=true"
 `- Optionally revert the white Navigation Bar in the Material Design Refresh (MD2)
 to black with option `--dark-navbar`
-- Optionally prefer Protobuf's full Java runtime with option `--no-javalite`
+- Optionally prefer Protobuf's full Java runtime with option `--no-javalite`. This will be removed once a prebuilt arm64 `protoc-gen-javalite` is made available
 
 ## <a name="resources"></a>Resources
 
