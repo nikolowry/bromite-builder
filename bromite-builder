@@ -222,6 +222,10 @@ build () {
         && fetch-sync \
         && prepare
 
+    # V8 Compiler Optimization Workaround | https://crbug.com/942497
+    sed -i 's|"-O0"|"-O2"|g' \
+        "$BUILD_DIR/chromium/src/build/config/compiler/BUILD.gn"
+
     bromite_dir=$([[ $REVISION_HASH ]] \
         && echo "$BUILD_DIR/bromite-$REVISION_HASH" \
         || echo "$BUILD_DIR/bromite-$REVISION")
