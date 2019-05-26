@@ -1,7 +1,7 @@
 diff -rupN a/android_webview/BUILD.gn b/android_webview/BUILD.gn
---- a/android_webview/BUILD.gn	2019-04-17 11:57:45.999838000 -0400
-+++ b/android_webview/BUILD.gn	2019-04-17 12:03:00.663158276 -0400
-@@ -967,7 +967,7 @@ android_library("android_webview_variati
+--- a/android_webview/BUILD.gn	2019-05-26 19:16:14.743157951 -0400
++++ b/android_webview/BUILD.gn	2019-05-26 19:22:23.556474721 -0400
+@@ -958,7 +958,7 @@ android_library("android_webview_variati
      "//android_webview/proto:aw_variations_seed_proto_java",
      "//base:base_java",
      "//components/variations/android:variations_java",
@@ -11,9 +11,9 @@ diff -rupN a/android_webview/BUILD.gn b/android_webview/BUILD.gn
  }
  
 diff -rupN a/build/config/android/rules.gni b/build/config/android/rules.gni
---- a/build/config/android/rules.gni	2019-04-17 11:58:14.916504000 -0400
-+++ b/build/config/android/rules.gni	2019-04-17 12:04:07.236488661 -0400
-@@ -3602,9 +3602,7 @@ if (enable_java_templates) {
+--- a/build/config/android/rules.gni	2019-05-26 19:18:08.083152861 -0400
++++ b/build/config/android/rules.gni	2019-05-26 19:23:51.386470790 -0400
+@@ -3682,9 +3682,7 @@ if (enable_java_templates) {
        _protoc_dep = "//third_party/protobuf:protoc($host_toolchain)"
        _protoc_out_dir = get_label_info(_protoc_dep, "root_out_dir")
        _protoc_bin = "$_protoc_out_dir/protoc"
@@ -24,7 +24,7 @@ diff -rupN a/build/config/android/rules.gni b/build/config/android/rules.gni
      }
      _proto_path = invoker.proto_path
      _template_name = target_name
-@@ -3637,11 +3635,6 @@ if (enable_java_templates) {
+@@ -3717,11 +3715,6 @@ if (enable_java_templates) {
               ] + rebase_path(sources, root_build_dir)
        if (_generate_nano) {
          args += [ "--nano" ]
@@ -37,8 +37,8 @@ diff -rupN a/build/config/android/rules.gni b/build/config/android/rules.gni
      }
  
 diff -rupN a/build/protoc_java.py b/build/protoc_java.py
---- a/build/protoc_java.py	2019-04-17 11:58:36.796503000 -0400
-+++ b/build/protoc_java.py	2019-04-17 12:05:53.786483928 -0400
+--- a/build/protoc_java.py	2019-05-26 19:18:48.859817694 -0400
++++ b/build/protoc_java.py	2019-05-26 19:25:46.486465630 -0400
 @@ -35,8 +35,6 @@ def main(argv):
    parser.add_option("--stamp", help="File to touch on success.")
    parser.add_option("--nano",
@@ -87,29 +87,29 @@ diff -rupN a/build/protoc_java.py b/build/protoc_java.py
      if options.java_out_dir:
        build_utils.DeleteDirectory(options.java_out_dir)
 diff -rupN a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
---- a/chrome/android/BUILD.gn	2019-04-17 11:59:05.253168000 -0400
-+++ b/chrome/android/BUILD.gn	2019-04-17 12:07:24.973146549 -0400
+--- a/chrome/android/BUILD.gn	2019-05-26 19:19:25.549816059 -0400
++++ b/chrome/android/BUILD.gn	2019-05-26 19:27:29.626460997 -0400
 @@ -340,7 +340,7 @@ android_library("chrome_java") {
-     "//third_party/android_deps:android_support_v7_mediarouter_java",
-     "//third_party/android_deps:android_support_v7_recyclerview_java",
+     "//third_party/android_deps:com_android_support_support_compat_java",
+     "//third_party/android_deps:com_android_support_support_v13_java",
      "//third_party/android_deps:com_google_dagger_dagger_java",
 -    "//third_party/android_deps:com_google_protobuf_protobuf_lite_java",
 +    "//third_party/protobuf:protobuf_lite_javalib",
      "//third_party/android_deps:javax_inject_javax_inject_java",
      "//third_party/android_media:android_media_java",
      "//third_party/android_swipe_refresh:android_swipe_refresh_java",
-@@ -760,7 +760,7 @@ android_library("chrome_test_java") {
-     "//third_party/android_deps:android_support_v7_appcompat_java",
-     "//third_party/android_deps:android_support_v7_recyclerview_java",
+@@ -795,7 +795,7 @@ android_library("chrome_test_java") {
+     "//third_party/android_deps:com_android_support_recyclerview_v7_java",
+     "//third_party/android_deps:com_android_support_support_annotations_java",
      "//third_party/android_deps:com_google_ar_core_java",
 -    "//third_party/android_deps:com_google_protobuf_protobuf_lite_java",
 +    "//third_party/protobuf:protobuf_lite_javalib",
-     "//third_party/android_support_test_runner:rules_java",
-     "//third_party/android_support_test_runner:runner_java",
-     "//third_party/android_tools:android_test_base_java",
-@@ -1490,7 +1490,7 @@ android_library("browser_java_test_suppo
-     "//components/offline_items_collection/core:core_java",
+     "//third_party/android_sdk:android_test_base_java",
+     "//third_party/android_sdk:android_test_mock_java",
+     "//third_party/android_sdk:android_test_runner_java",
+@@ -1552,7 +1552,7 @@ android_library("browser_java_test_suppo
      "//components/sync:test_support_proto_java",
+     "//content/public/android:content_java",
      "//content/public/test/android:content_java_test_support",
 -    "//third_party/android_deps:com_google_protobuf_protobuf_lite_java",
 +    "//third_party/protobuf:protobuf_lite_javalib",
@@ -117,9 +117,9 @@ diff -rupN a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
    ]
  }
 diff -rupN a/components/invalidation/impl/BUILD.gn b/components/invalidation/impl/BUILD.gn
---- a/components/invalidation/impl/BUILD.gn	2019-04-17 11:59:39.719833000 -0400
-+++ b/components/invalidation/impl/BUILD.gn	2019-04-17 12:08:02.209811565 -0400
-@@ -273,7 +273,7 @@ if (is_android) {
+--- a/components/invalidation/impl/BUILD.gn	2019-05-26 19:19:57.089814646 -0400
++++ b/components/invalidation/impl/BUILD.gn	2019-05-26 19:28:01.983126208 -0400
+@@ -260,7 +260,7 @@ if (is_android) {
        "//base:base_java",
        "//components/signin/core/browser/android:java",
        "//components/sync/android:sync_java",
@@ -129,18 +129,18 @@ diff -rupN a/components/invalidation/impl/BUILD.gn b/components/invalidation/imp
        "//third_party/cacheinvalidation:cacheinvalidation_proto_java",
        "//third_party/jsr-305:jsr_305_javalib",
 diff -rupN a/third_party/feed/BUILD.gn b/third_party/feed/BUILD.gn
---- a/third_party/feed/BUILD.gn	2019-04-17 12:00:37.079831000 -0400
-+++ b/third_party/feed/BUILD.gn	2019-04-17 12:10:13.986472384 -0400
-@@ -63,7 +63,7 @@ android_library("feed_lib_java") {
-     "//third_party/android_deps:android_support_cardview_java",
-     "//third_party/android_deps:android_support_v7_appcompat_java",
-     "//third_party/android_deps:android_support_v7_recyclerview_java",
+--- a/third_party/feed/BUILD.gn	2019-05-26 19:20:22.203146856 -0400
++++ b/third_party/feed/BUILD.gn	2019-05-26 19:29:07.403123267 -0400
+@@ -98,7 +98,7 @@ android_library("feed_lib_java") {
+     "//third_party/android_deps:com_android_support_cardview_v7_java",
+     "//third_party/android_deps:com_android_support_recyclerview_v7_java",
+     "//third_party/android_deps:com_android_support_support_annotations_java",
 -    "//third_party/android_deps:com_google_protobuf_protobuf_lite_java",
 +    "//third_party/protobuf:protobuf_lite_javalib",
      "//third_party/android_deps:javax_inject_javax_inject_java",
      "//third_party/jsr-305:jsr_305_javalib",
    ]
-@@ -77,7 +77,7 @@ android_library("feed_conformance_test_l
+@@ -112,7 +112,7 @@ android_library("feed_conformance_test_l
    deps = [
      ":feed_lib_java",
      ":feed_lib_proto_java",
@@ -150,9 +150,9 @@ diff -rupN a/third_party/feed/BUILD.gn b/third_party/feed/BUILD.gn
      "//third_party/guava:guava_android_java",
      "//third_party/junit:junit",
 diff -rupN a/third_party/protobuf/BUILD.gn b/third_party/protobuf/BUILD.gn
---- a/third_party/protobuf/BUILD.gn	2019-04-17 12:00:56.316497000 -0400
-+++ b/third_party/protobuf/BUILD.gn	2019-04-17 12:11:47.106468266 -0400
-@@ -697,3 +697,61 @@ group("py_proto") {
+--- a/third_party/protobuf/BUILD.gn	2019-05-26 19:21:04.306478294 -0400
++++ b/third_party/protobuf/BUILD.gn	2019-05-26 19:31:15.596450833 -0400
+@@ -709,3 +709,61 @@ group("py_proto_runtime") {
    data += get_target_outputs(":copy_google_protobuf")
    data += get_target_outputs(":copy_google_protobuf_internal")
  }
