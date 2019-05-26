@@ -127,7 +127,7 @@ fetch-sync () {
     git clean -fdxq --exclude="$exclude"
 
     # Accept any y/n prompts
-    echo 'y' | gclient sync --with_branch_heads --force --reset -r "$REVISION"
+    echo 'y' | gclient sync --with_branch_heads --force --reset -D -r "$REVISION"
 }
 
 prepare () {
