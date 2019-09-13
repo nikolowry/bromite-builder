@@ -179,7 +179,7 @@ prepare () {
     # Add custom patches to patchlist
     if [[ -e $bromite_src/patches_list.txt ]]; then
         [[ $DARK_NAVBAR ]] \
-            && patchlist+=("$BUILD_DIR/patches/Dark-Navbar.patch")
+            && patchlist=("$BUILD_DIR/patches/Dark-Navbar.patch" "${patchlist[@]}")
 
         [[ $NO_JAVALITE ]] \
             && patchlist+=("$BUILD_DIR/patches/No-Javalite.patch")
