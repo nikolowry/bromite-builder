@@ -54,7 +54,7 @@ Options:
     -r, --revision=<revision>    Where <revision> is a Bromite release tag. Defaults to Bromite's latest release.
     --upstream                   Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>
     --dark-navbar                Prefer a dark navigation bar over a white one
-    --no-javalite                Use Protobuf's full Java code generator instead of Java Lite
+    --legacy-javalite            Use the legacy version of Protobuf Java Lite
     -h, --help                   Print help menu
 ```
 

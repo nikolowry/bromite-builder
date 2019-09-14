@@ -8,7 +8,7 @@ IFS=$'\n\t'
 ARCH_TYPES=('arm' 'arm64' 'x86')
 ARCH=${ARCH_TYPES[0]}
 
-NO_JAVALITE=
+LEGACY_JAVALITE=
 DARK_NAVBAR=
 GN_ARGS=
 PATCHES_DIR=
@@ -32,7 +32,7 @@ opts=(
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. Defaults to Bromite's latest release."
     "--upstream | Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>"
     "--dark-navbar | Prefer a dark navigation bar over a white one"
-    "--no-javalite | Use Protobuf's full Java code generator instead of Java Lite"
+    "--legacy-javalite | Use the legacy version of Protobuf Java Lite"
     "-h, --help | Print help menu")
 
 # Constants
@@ -160,8 +160,8 @@ prepare () {
         && cp -f "$CWD/patches/Dark-Navbar.patch" \
             "$BUILD_DIR/patches"
 
-    [[ $NO_JAVALITE ]] \
-        && cp -f "$CWD/patches/No-Javalite.patch" \
+    [[ $LEGACY_JAVALITE ]] \
+        && cp -f "$CWD/patches/Legacy-Javalite.patch" \
             "$BUILD_DIR/patches"
 
     [[ $PATCHES_DIR ]] && [[ -d $PATCHES_DIR ]] \
@@ -172,20 +172,20 @@ prepare () {
 
     # Patch List Order
     [[ -e $bromite_src/patches_list.txt ]] \
-        && patchlist=($(cat "$bromite_src/patches_list.txt" \
+        && patchlist=($(cat "$bromite_src"/patches_list.txt \
             | sed -e "s|^|$BUILD_DIR/patches/|g")) \
-        || patchlist=($BUILD_DIR/patches/*.patch)
+        || patchlist=("$BUILD_DIR"/patches/*.patch)
 
     # Add custom patches to patchlist
     if [[ -e $bromite_src/patches_list.txt ]]; then
         [[ $DARK_NAVBAR ]] \
             && patchlist=("$BUILD_DIR/patches/Dark-Navbar.patch" "${patchlist[@]}")
 
-        [[ $NO_JAVALITE ]] \
-            && patchlist+=("$BUILD_DIR/patches/No-Javalite.patch")
+        [[ $LEGACY_JAVALITE ]] \
+            && patchlist+=("$BUILD_DIR/patches/Legacy-Javalite.patch")
 
         if [[ $PATCHES_DIR ]] && [[ -d $PATCHES_DIR ]]; then
-            for patchfile in $PATCHES_DIR/*.patch; do
+            for patchfile in "$PATCHES_DIR"/*.patch; do
                 [[ ! -e "$bromite_src/patches/$(basename "$patchfile")" ]] \
                     && patchlist+=("$patchfile")
             done
@@ -240,17 +240,16 @@ build () {
 
     # Get Bromite GN Args if they exist
     [[ -e $bromite_src/GN_ARGS ]] \
-        && gn_args_bromite=$(cat "$bromite_src/GN_ARGS" \
-            | tr "\n" " " \
-            | sed -e "s/symbol_level\=1/symbol_level\=0/g") \
+        && gn_args_bromite="$(sed -e "s/symbol_level\=1/symbol_level\=0/g" \
+            < "$bromite_src"/GN_ARGS \
+            | tr "\n" " ")" \
         || gn_args_bromite=''
 
     # Combine default GN args
-    gn_args="target_cpu=\"$ARCH\" ${gn_args_bromite}$(printf \
-        ' %s' "${gn_args_custom_arr[@]}")"
+    gn_args="target_cpu=\"$ARCH\" ${gn_args_bromite}"
 
     # Cast user GN args to array
-    gn_args_user_arr=($(echo $GN_ARGS | tr " " "\n"))
+    gn_args_user_arr=("$(echo $GN_ARGS | tr " " "\n")")
 
     # Update GN args with user-defined args taking priority
     for arg in "${gn_args_user_arr[@]}"; do
