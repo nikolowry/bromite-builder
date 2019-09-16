@@ -97,10 +97,9 @@ diff -rupN a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 +    "//third_party/protobuf:protobuf_lite_javalib",
      "//third_party/android_deps:javax_inject_javax_inject_java",
      "//third_party/android_media:android_media_java",
-@@ -821,7 +821,7 @@ android_library("chrome_test_java") {
+@@ -857,6 +857,6 @@ android_library("chrome_test_java") {
      "//third_party/android_deps:com_android_support_recyclerview_v7_java",
      "//third_party/android_deps:com_android_support_support_annotations_java",
-     "//third_party/android_deps:com_google_ar_core_java",
 -    "//third_party/android_deps:com_google_protobuf_protobuf_lite_java",
 +    "//third_party/protobuf:protobuf_lite_javalib",
      "//third_party/android_sdk:android_test_base_java",
