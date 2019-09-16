@@ -15,12 +15,10 @@ diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res
 diff -rupN a/chrome/android/java/res/values/values.xml b/chrome/android/java/res/values/values.xml
 --- a/chrome/android/java/res/values/values.xml	2019-09-13 00:30:09.349621815 -0400
 +++ b/chrome/android/java/res/values/values.xml	2019-09-13 00:32:11.506342647 -0400
-@@ -82,7 +82,7 @@
+@@ -82,5 +82,5 @@
      <integer name="download_infobar_bar_fill_out_delay">200</integer>
- 
+
      <!-- Bottom navigation bar styling. -->
 -    <bool name="window_light_navigation_bar">true</bool>
 +    <bool name="window_light_navigation_bar">false</bool>
- 
-     <!-- Preferences-Languages -->
-     <!-- Used for 90% = 230/255 alpha -->
+
