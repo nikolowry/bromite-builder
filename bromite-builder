@@ -8,6 +8,7 @@ IFS=$'\n\t'
 ARCH_TYPES=('arm' 'arm64' 'x86')
 ARCH=${ARCH_TYPES[0]}
 
+CREATE_STRIPPED_JAVA_FACTORY_NO_JAVALANG=
 LEGACY_JAVALITE=
 DARK_NAVBAR=
 GN_ARGS=
@@ -33,6 +34,7 @@ opts=(
     "--upstream | Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>"
     "--dark-navbar | Prefer a dark navigation bar over a white one"
     "--legacy-javalite | Use the legacy version of Protobuf Java Lite"
+    "--create-stripped-java-factory-no-javalang | Avoid having to install pip module six locally"
     "-h, --help | Print help menu")
 
 # Constants
@@ -164,6 +166,10 @@ prepare () {
         && cp -f "$CWD/patches/Legacy-Javalite.patch" \
             "$BUILD_DIR/patches"
 
+    [[ $CREATE_STRIPPED_JAVA_FACTORY_NO_JAVALANG ]] \
+        && cp -f "$CWD/patches/Create-Stripped-Java-Factory-No-Javalang.patch" \
+            "$BUILD_DIR/patches"
+
     [[ $PATCHES_DIR ]] && [[ -d $PATCHES_DIR ]] \
         && cp -rf "$PATCHES_DIR/." \
             "$BUILD_DIR/patches"
@@ -183,6 +189,9 @@ prepare () {
 
         [[ $LEGACY_JAVALITE ]] \
             && patchlist+=("$BUILD_DIR/patches/Legacy-Javalite.patch")
+
+        [[ $CREATE_STRIPPED_JAVA_FACTORY_NO_JAVALANG ]] \
+            && patchlist+=("$BUILD_DIR/patches/Create-Stripped-Java-Factory-No-Javalang.patch")
 
         if [[ $PATCHES_DIR ]] && [[ -d $PATCHES_DIR ]]; then
             for patchfile in "$PATCHES_DIR"/*.patch; do

@@ -68,7 +68,9 @@ the following:
 no supported by Chromium, https://groups.google.com/a/chromium.org/forum/#!topic/chromium-dev/DP9TQszzQLI.
 - Optionally revert the white Navigation Bar in the Material Design Refresh (MD2)
 to black with option `--dark-navbar`
-- Optionally prefer Protobuf's full Java runtime with option `--no-javalite`. This will be removed once a prebuilt arm64 `protoc-gen-javalite` is made available
+- Prefer the legacy version of Protobuf Java Lite with option `--legacy-javalite`.
+This will be removed once the upstream Protobuf library is implemented in Chromium
+- Avoid having to install `six` via `pip` on newer builds, > v76, with option `--create-stripped-java-factory-no-javalang`
 
 ## <a name="resources"></a>Resources
 
