@@ -64,9 +64,9 @@ Builds produced with `bromite-builder` differ from official Bromite releases wit
 the following:
 
 - Retains Chromium branding and namespace
-- Symbols are turned off for faster build times. For even faster builds on
-`arm64` and `x86`, build with option `--gn-args="use_jumbo_build=true"
-`- Optionally revert the white Navigation Bar in the Material Design Refresh (MD2)
+- Symbols are turned off for faster build times. Do note that jumbo builds are
+no supported by Chromium, https://groups.google.com/a/chromium.org/forum/#!topic/chromium-dev/DP9TQszzQLI.
+- Optionally revert the white Navigation Bar in the Material Design Refresh (MD2)
 to black with option `--dark-navbar`
 - Optionally prefer Protobuf's full Java runtime with option `--no-javalite`. This will be removed once a prebuilt arm64 `protoc-gen-javalite` is made available
 
