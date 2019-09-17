@@ -8,11 +8,14 @@ IFS=$'\n\t'
 ARCH_TYPES=('arm' 'arm64' 'x86')
 ARCH=${ARCH_TYPES[0]}
 
-CREATE_STRIPPED_JAVA_FACTORY_NO_JAVALANG=
-LEGACY_JAVALITE=
-DARK_NAVBAR=
 GN_ARGS=
 PATCHES_DIR=
+
+# Optional Patches
+DARK_NAVBAR=
+LEGACY_JAVALITE=
+CREATE_STRIPPED_JAVA_FACTORY_NO_JAVALANG=
+
 
 TARGET_TYPES=('chrome_modern_public_apk' 'chrome_public_apk'
     'monochrome_public_apk')
@@ -185,7 +188,7 @@ prepare () {
     # Add custom patches to patchlist
     if [[ -e $bromite_src/patches_list.txt ]]; then
         [[ $DARK_NAVBAR ]] \
-            && patchlist=("$BUILD_DIR/patches/Dark-Navbar.patch" "${patchlist[@]}")
+            && patchlist+=("$BUILD_DIR/patches/Dark-Navbar.patch")
 
         [[ $LEGACY_JAVALITE ]] \
             && patchlist+=("$BUILD_DIR/patches/Legacy-Javalite.patch")
