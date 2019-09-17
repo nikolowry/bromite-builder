@@ -258,7 +258,7 @@ build () {
     gn_args="target_cpu=\"$ARCH\" ${gn_args_bromite}"
 
     # Cast user GN args to array
-    gn_args_user_arr=("$(echo $GN_ARGS | tr " " "\n")")
+    gn_args_user_arr=($(echo $GN_ARGS | tr " " "\n"))
 
     # Update GN args with user-defined args taking priority
     for arg in "${gn_args_user_arr[@]}"; do
