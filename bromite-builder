@@ -34,7 +34,7 @@ opts=(
     "--upstream | Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>"
     "--dark-navbar | Prefer a dark navigation bar over a white one"
     "--legacy-javalite | Use the legacy version of Protobuf Java Lite"
-    "--create-stripped-java-factory-no-javalang | Avoid having to install pip module six locally"
+    "--create-stripped-java-factory-no-javalang | Avoid having to locally install the pip module \"six\""
     "-h, --help | Print help menu")
 
 # Constants
