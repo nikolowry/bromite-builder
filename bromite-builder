@@ -128,11 +128,10 @@ fetch-sync () {
     cd src
 
     # Reset tree
-    local exclude="out/Default_${REVISION}_${ARCH}"
-    git clean -fdxq --exclude="$exclude"
+    git clean -fdxq --exclude="out/Default_${REVISION}_*"
 
     # Accept any y/n prompts
-    echo 'y' | gclient sync --with_branch_heads --force --reset -D -r "$REVISION"
+    echo 'y' | gclient sync --with_branch_heads --force --reset -r "$REVISION"
 }
 
 prepare () {
