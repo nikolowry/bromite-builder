@@ -55,6 +55,9 @@ solutions = [{
     }, {
         "name": "zucchini_testdata",
         "condition": False
+    }, {
+        "name": "Fetch Android RenderTest goldens",
+        "condition": False
     }],
     "custom_vars": {
         "checkout_instrumented_libraries": False,
