@@ -62,8 +62,10 @@ solutions = [{
     "custom_vars": {
         "checkout_instrumented_libraries": False,
         "checkout_nacl": False,
-        "checkout_traffic_annotation_tools": False
+        "checkout_traffic_annotation_tools": False,
     }
 }]
 
 target_os = ["android"]
+
+# vi: ft=python
