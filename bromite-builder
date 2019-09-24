@@ -16,7 +16,6 @@ DARK_NAVBAR=
 LEGACY_JAVALITE=
 CREATE_STRIPPED_JAVA_FACTORY_NO_JAVALANG=
 
-
 TARGET_TYPES=('chrome_modern_public_apk' 'chrome_public_apk'
     'monochrome_public_apk')
 TARGET=${TARGET_TYPES[0]}
