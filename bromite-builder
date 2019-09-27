@@ -399,6 +399,8 @@ _localpatches () {
 
 _localbin () {
     local python_v
+    local protobuf_repo
+    local protoc_javalite_bin
 
     mkdir -p "$CWD/.bin"
 
@@ -412,16 +414,28 @@ _localbin () {
     git checkout master -q
     git pull -q
 
-    export PATH=$CWD/.bin/depot_tools:$PATH
+    export PATH=$CWD/.bin:$CWD/.bin/depot_tools:$PATH
 
     # Use Python 2
     python_v=$(python --version \
         | sed "s|[a-z]\s*||ig" \
         | cut -d '.' -f 1)
 
-    [[ $python_v != 2 ]] && [[ $(command -v python2) ]] \
-        && ln -sf "$(command -v python2)" "$CWD/.bin/python" \
-        && export PATH=$CWD/.bin:$PATH
+    [[ $python_v != 2 ]] \
+        && [[ $(command -v python2) ]] \
+        && ln -sf "$(command -v python2)" "$CWD/.bin/python"
+
+    # Ensure 64 bit protobuf-gen-javalite is available in PATH
+    # Can remove after issue is resolved https://crbug.com/988512
+    # TODO: Remove and build binaries from source
+    protobuf_repo=https://repo1.maven.org/maven2/com/google/protobuf
+    protoc_javalite_bin=protoc-gen-javalite-3.0.0-linux-x86_64.exe
+
+    [[ $(uname -m) == x86_64 ]] \
+        && [[ ! -e "$CWD/.bin/protobuf-gen-javalite" ]] \
+        && curl -s "$protobuf_repo/protoc-gen-javalite/3.0.0/$protoc_javalite_bin" \
+            -o "$CWD/.bin/protoc-gen-javalite" \
+        && chmod 755 "$CWD/.bin/protoc-gen-javalite"
 }
 
 _getcmds () {
