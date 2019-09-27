@@ -54,7 +54,6 @@ Options:
     -r, --revision=<revision>                     Where <revision> is a Bromite release tag. Defaults to Bromite's latest release.
     --upstream                                    Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>
     --dark-navbar                                 Prefer a dark navigation bar over a white one
-    --legacy-javalite                             Use the legacy version of Protobuf Java Lite
     --create-stripped-java-factory-no-javalang    Avoid having to locally install the pip module "six"
     -h, --help                                    Print help menu
 ```
@@ -71,8 +70,6 @@ Use jumbo builds at your own risk as they are no longer supported by Chromium,
 https://groups.google.com/a/chromium.org/forum/#!topic/chromium-dev/DP9TQszzQLI.
 - Optionally revert the white Navigation Bar in the Material Design Refresh (MD2)
 to black with option `--dark-navbar`
-- Prefer the legacy version of Protobuf Java Lite with option `--legacy-javalite`.
-This will be removed once the upstream Protobuf library is implemented in Chromium
 - Avoid having to install `six` via `pip` on newer builds (v77+) with option `--create-stripped-java-factory-no-javalang`
 
 ## <a name="resources"></a>Resources
