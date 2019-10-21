@@ -50,6 +50,12 @@ solutions = [{
         "name": "vr_controller_test_api",
         "condition": False
     }, {
+        "name": "vr_test_apks",
+        "condition": False
+    }, {
+        "name": "ar_test_apks",
+        "condition": False
+    }, {
         "name": "test_fonts",
         "condition": False
     }, {
