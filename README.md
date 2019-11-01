@@ -47,15 +47,14 @@ If no [command] is set, the default command sequence will be executed:
     - build
 
 Options:
-    -a, --arch=<arch>                             Where <arch> is: arm, arm64, x86. Defaults to arm
-    -g, --gn-args=<args>                          Where <args> is a string of GN build arguments
-    -p, --patches-dir=<dir>                       Where <dir> is a path to a directory containing custom patches
-    -t, --target=<target>                         Where Ninja <target> is: chrome_modern_public_apk, chrome_public_apk, monochrome_public_apk. Defaults to chrome_modern_public_apk
-    -r, --revision=<revision>                     Where <revision> is a Bromite release tag. Defaults to Bromite's latest release.
-    --upstream                                    Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>
-    --dark-navbar                                 Prefer a dark navigation bar over a white one
-    --create-stripped-java-factory-no-javalang    Avoid having to locally install the pip module "six"
-    -h, --help                                    Print help menu
+    -a, --arch=<arch>            Where <arch> is: arm, arm64, x86. Defaults to arm
+    -g, --gn-args=<args>         Where <args> is a string of GN build arguments
+    -p, --patches-dir=<dir>      Where <dir> is a path to a directory containing custom patches
+    -t, --target=<target>        Where Ninja <target> is: chrome_modern_public_apk, chrome_public_apk, monochrome_public_apk. Defaults to chrome_modern_public_apk
+    -r, --revision=<revision>    Where <revision> is a Bromite release tag. Defaults to Bromite's latest release.
+    --upstream                   Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>
+    --dark-navbar                Prefer a dark navigation bar over a white one
+    -h, --help                   Print help menu
 ```
 
 ## <a name="notes"></a>Notes
@@ -70,7 +69,6 @@ Use jumbo builds at your own risk as they are no longer supported by Chromium,
 https://groups.google.com/a/chromium.org/forum/#!topic/chromium-dev/DP9TQszzQLI.
 - Optionally revert the white Navigation Bar in the Material Design Refresh (MD2)
 to black with option `--dark-navbar`
-- Avoid having to install `six` via `pip` on newer builds (v77+) with option `--create-stripped-java-factory-no-javalang`
 
 ## <a name="resources"></a>Resources
 
