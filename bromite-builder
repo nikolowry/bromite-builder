@@ -171,6 +171,11 @@ prepare () {
 
     cd "$BUILD_DIR/chromium/src"
 
+    # Copy Adblock Entries Header (legacy builds)
+    [[ -e "$bromite_src/filters/adblock_entries.h" ]] \
+        && cp -f "$bromite_src/filters/adblock_entries.h" \
+            net/url_request
+
     # Patch List Order
     [[ -e $bromite_src/patches_list.txt ]] \
         && patchlist=($(cat "$bromite_src"/patches_list.txt \
@@ -201,10 +206,6 @@ prepare () {
         echo "Applying patch: $(basename "$patchfile")"
         git apply --whitespace=nowarn "$patchfile"
     done
-
-    # Copy Adblock Entries Header
-    cp -f "$bromite_src/filters/adblock_entries.h" \
-        net/url_request
 }
 
 build () {
