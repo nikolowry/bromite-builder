@@ -4,23 +4,19 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Dynamic Vars for Options with inputs
+# User-defined Variables
 ARCH_TYPES=('arm' 'arm64' 'x86')
 ARCH=${ARCH_TYPES[0]}
-
+DARK_NAVBAR=
 GN_ARGS=
 PATCHES_DIR=
-
-# Optional Patches
-DARK_NAVBAR=
-CREATE_STRIPPED_JAVA_FACTORY_NO_JAVALANG=
-
-TARGET_TYPES=('chrome_modern_public_apk' 'chrome_public_apk'
-    'monochrome_public_apk')
-TARGET=${TARGET_TYPES[0]}
-
 REVISION=
 REVISION_HASH=
+TARGET_TYPES=(
+    'chrome_modern_public_apk'
+    'chrome_public_apk'
+    'monochrome_public_apk')
+TARGET=${TARGET_TYPES[0]}
 UPSTREAM=
 
 # Options
@@ -34,7 +30,6 @@ opts=(
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. Defaults to Bromite's latest release."
     "--upstream | Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>"
     "--dark-navbar | Prefer a dark navigation bar over a white one"
-    "--create-stripped-java-factory-no-javalang | Avoid having to locally install the pip module \"six\""
     "-h, --help | Print help menu")
 
 # Constants
@@ -164,10 +159,6 @@ prepare () {
         && cp -f "$CWD/patches/Dark-Navbar.patch" \
             "$BUILD_DIR/patches"
 
-    [[ $CREATE_STRIPPED_JAVA_FACTORY_NO_JAVALANG ]] \
-        && cp -f "$CWD/patches/Create-Stripped-Java-Factory-No-Javalang.patch" \
-            "$BUILD_DIR/patches"
-
     [[ $PATCHES_DIR ]] && [[ -d $PATCHES_DIR ]] \
         && cp -rf "$PATCHES_DIR/." \
             "$BUILD_DIR/patches"
@@ -189,9 +180,6 @@ prepare () {
     if [[ -e $bromite_src/patches_list.txt ]]; then
         [[ $DARK_NAVBAR ]] \
             && patchlist+=("$BUILD_DIR/patches/Dark-Navbar.patch")
-
-        [[ $CREATE_STRIPPED_JAVA_FACTORY_NO_JAVALANG ]] \
-            && patchlist+=("$BUILD_DIR/patches/Create-Stripped-Java-Factory-No-Javalang.patch")
 
         if [[ $PATCHES_DIR ]] && [[ -d $PATCHES_DIR ]]; then
             for patchfile in "$PATCHES_DIR"/*.patch; do
