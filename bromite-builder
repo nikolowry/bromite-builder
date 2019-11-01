@@ -43,6 +43,9 @@ CWD=$(cd "$( dirname "$0" )" && pwd)
 BUILD_DIR=$CWD/build
 BASE_URL="https://github.com/bromite/bromite"
 
+# ENV
+PYTHONPATH=${PYTHONPATH:-}
+
 clean () {
     rm -rf "$BUILD_DIR"
 }
@@ -407,6 +410,7 @@ _localbin () {
     git pull -q
 
     export PATH=$CWD/.bin:$CWD/.bin/depot_tools:$PATH
+    export PYTHONPATH="$CWD/.bin/depot_tools/third_party:$PYTHONPATH"
 
     # Use Python 2
     python_v=$(python --version \
