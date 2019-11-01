@@ -112,7 +112,7 @@ fetch-sync () {
     # Fetch & Sync Chromium
     echo "Fetching and Syncing Chromium"
 
-    # Fetch does not support partial checks, delete and start over (crbug.com/230691)
+    # Partial checkouts not supported, delete and start over (crbug.com/230691)
     [[ ! -e .gclient ]] || [[ ! -e .gclient_entries ]] || [[ ! -d .cipd ]] \
         && rm -rf ../chromium/{*,.g*,.c*} \
         && fetch --nohooks android
@@ -345,8 +345,6 @@ _setopts () {
             idx=$(( "$idx" + 1 ))
         done
     done
-
-    _localpatches
 }
 
 _localpatches () {
@@ -452,6 +450,9 @@ main () {
 
     # Set Options
     _setopts "$@"
+
+    # Setup custom patches dir
+    _localpatches
 
     # Setup Local bin
     _localbin
