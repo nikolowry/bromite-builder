@@ -1,7 +1,7 @@
 diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res/values/colors.xml
---- a/chrome/android/java/res/values/colors.xml	2019-09-13 00:30:28.086292805 -0400
-+++ b/chrome/android/java/res/values/colors.xml	2019-09-13 00:31:49.382995183 -0400
-@@ -190,8 +190,8 @@
+--- a/chrome/android/java/res/values/colors.xml	2019-12-01 13:11:00.558755287 -0500
++++ b/chrome/android/java/res/values/colors.xml	2019-12-01 13:16:31.701065555 -0500
+@@ -186,8 +186,8 @@
      <color name="media_viewer_bg">#000000</color>
      <color name="image_viewer_bg">#0E0E0E</color>
      <color name="modern_blue_600_alpha_38_opaque">#A8CAF6</color>
@@ -13,12 +13,13 @@ diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res
      <color name="thumbnail_placeholder_on_primary_bg" tools:ignore="UnusedResources">@color/modern_secondary_color</color>
      <color name="tab_layout_selected_tab_color">@color/default_text_color_blue</color>
 diff -rupN a/chrome/android/java/res/values/values.xml b/chrome/android/java/res/values/values.xml
---- a/chrome/android/java/res/values/values.xml	2019-09-13 00:30:09.349621815 -0400
-+++ b/chrome/android/java/res/values/values.xml	2019-09-13 00:32:11.506342647 -0400
-@@ -82,5 +82,5 @@
-     <integer name="download_infobar_bar_fill_out_delay">200</integer>
+--- a/chrome/android/java/res/values/values.xml	2019-12-01 13:11:39.858559316 -0500
++++ b/chrome/android/java/res/values/values.xml	2019-12-01 13:17:06.941537065 -0500
+@@ -78,6 +78,6 @@
 
      <!-- Bottom navigation bar styling. -->
 -    <bool name="window_light_navigation_bar">true</bool>
 +    <bool name="window_light_navigation_bar">false</bool>
 
+     <!-- Status bar icon styling. -->
+     <bool name="window_light_status_bar">true</bool>
