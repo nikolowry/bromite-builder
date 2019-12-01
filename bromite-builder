@@ -233,13 +233,14 @@ build () {
 
     # Get Bromite GN Args if they exist
     [[ -e $bromite_src/GN_ARGS ]] \
-        && gn_args_bromite="$(sed -e "s/symbol_level\=1/symbol_level\=0/g" \
-            < "$bromite_src"/GN_ARGS \
+        && gn_args_bromite="$(
+            sed -E "s/^(symbol_level|remove_webcore_debug_symbols|exclude_unwind_tables\s*)\=.+//g" \
+                < "$bromite_src"/GN_ARGS \
             | tr "\n" " ")" \
         || gn_args_bromite=''
 
     # Combine default GN args
-    gn_args="target_cpu=\"$ARCH\" ${gn_args_bromite}"
+    gn_args="target_cpu=\"$ARCH\" symbol_level=0 ${gn_args_bromite}"
 
     # Cast user GN args to array
     gn_args_user_arr=($(echo $GN_ARGS | tr " " "\n"))
@@ -259,7 +260,9 @@ build () {
     done
 
     # Normalize Whitespace
-    gn_args=$(echo "$gn_args" | sed -E 's/\s+/ /g')
+    gn_args=$(echo "$gn_args" \
+        | sed -E 's/\s+/ /g' \
+        | sed -E 's/\s+=\s+/=/g')
 
     # Build
     gn gen "--args=$gn_args" "$CHROMIUM_OUTPUT_DIR"
