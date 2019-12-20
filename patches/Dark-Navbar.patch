@@ -1,17 +1,15 @@
 diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res/values/colors.xml
---- a/chrome/android/java/res/values/colors.xml	2019-12-01 13:11:00.558755287 -0500
-+++ b/chrome/android/java/res/values/colors.xml	2019-12-01 13:16:31.701065555 -0500
-@@ -186,8 +186,8 @@
+--- a/chrome/android/java/res/values/colors.xml	2019-12-20 13:11:00.558755287 -0500
++++ b/chrome/android/java/res/values/colors.xml	2019-12-20 13:16:31.701065555 -0500
+@@ -177,6 +177,6 @@
+     <!-- Other colors -->
      <color name="media_viewer_bg">#000000</color>
      <color name="image_viewer_bg">#0E0E0E</color>
-     <color name="modern_blue_600_alpha_38_opaque">#A8CAF6</color>
 -    <color name="bottom_system_nav_color">@android:color/white</color>
 -    <color name="bottom_system_nav_divider_color">@color/black_alpha_12</color>
 +    <color name="bottom_system_nav_color">@android:color/black</color>
 +    <color name="bottom_system_nav_divider_color">@android:color/black</color>
      <color name="search_box_hint">@color/default_text_color_secondary</color>
-     <color name="thumbnail_placeholder_on_primary_bg" tools:ignore="UnusedResources">@color/modern_secondary_color</color>
-     <color name="tab_layout_selected_tab_color">@color/default_text_color_blue</color>
 diff -rupN a/chrome/android/java/res/values/values.xml b/chrome/android/java/res/values/values.xml
 --- a/chrome/android/java/res/values/values.xml	2019-12-01 13:11:39.858559316 -0500
 +++ b/chrome/android/java/res/values/values.xml	2019-12-01 13:17:06.941537065 -0500
