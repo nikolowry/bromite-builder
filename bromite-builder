@@ -10,6 +10,7 @@ ARCH=${ARCH_TYPES[0]}
 DARK_NAVBAR=
 GN_ARGS=
 PATCHES_DIR=
+NO_BROMITE_PATCHES=
 REVISION=
 REVISION_HASH=
 TARGET_TYPES=(
@@ -29,6 +30,7 @@ opts=(
         | sed -E "s/\s/, /g"). Defaults to $TARGET"
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. Defaults to Bromite's latest release."
     "--upstream | Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>"
+    "--no-bromite-patches | Only apply patches from Bromite's chromium_patches_list.txt"
     "--dark-navbar | Prefer a dark navigation bar over a white one"
     "-h, --help | Print help menu")
 
@@ -132,6 +134,7 @@ fetch-sync () {
 prepare () {
     local bromite_dir
     local bromite_src
+    local patchlist_path
     local patchlist
 
     [[ ! -d $BUILD_DIR/chromium/src ]] \
@@ -148,6 +151,10 @@ prepare () {
     bromite_src=$([[ -d "$bromite_dir/build" ]] \
         && echo "$bromite_dir/build" \
         || echo "$bromite_dir")
+
+    patchlist_path=$([[ $NO_BROMITE_PATCHES ]] \
+        && echo "$bromite_src/chromium_patches_list.txt" \
+        || echo "$bromite_src/patches_list.txt")
 
     # Prep Patching
     rm -rf "$BUILD_DIR/patches"
@@ -171,9 +178,9 @@ prepare () {
             net/url_request
 
     # Patch List Order
-    [[ -e $bromite_src/patches_list.txt ]] \
-        && patchlist=($(cat "$bromite_src"/patches_list.txt \
-            | sed -e "s|^|$BUILD_DIR/patches/|g")) \
+    [[ -e $patchlist_path ]] \
+        && patchlist=($(sed -e "s|^|$BUILD_DIR/patches/|g" \
+            < "$patchlist_path")) \
         || patchlist=("$BUILD_DIR"/patches/*.patch)
 
     # Add custom patches to patchlist
