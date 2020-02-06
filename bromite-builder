@@ -19,6 +19,7 @@ TARGET_TYPES=(
     'monochrome_public_apk')
 TARGET=${TARGET_TYPES[0]}
 UPSTREAM=
+UPSTREAM_COMMIT_HASH=
 
 # Options
 opts=(
@@ -29,7 +30,8 @@ opts=(
     "-t, --target=<target> | Where Ninja <target> is: $(echo "${TARGET_TYPES[@]}" \
         | sed -E "s/\s/, /g"). Defaults to $TARGET"
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. Defaults to Bromite's latest release."
-    "--upstream | Use Bromite's git source instead of a release tag. If set, any Chromium tag can be assigned to <revision>"
+    "-u, --upstream | Use Bromite's latest git commit instead of a release tag. If set, any Chromium tag can be assigned to <revision>"
+    "--upstream-commit-hash=<commit-hash> | Specifiy a Bromite commit rather than use the latest from upstream. Complete SHA1 hash required"
     "--no-bromite-patches | Only apply patches from Bromite's chromium_patches_list.txt"
     "--dark-navbar | Prefer a dark navigation bar over a white one"
     "-h, --help | Print help menu")
@@ -52,9 +54,14 @@ set-revision () {
     local error_msg
     local latest
 
+    [[ $UPSTREAM_COMMIT_HASH ]] \
+        && UPSTREAM=1
+
     [[ $UPSTREAM ]] \
-        && REVISION_HASH=$(git ls-remote "$BASE_URL.git" HEAD \
-            | awk '{print $1}' \
+        && REVISION_HASH=$(echo $([[ $UPSTREAM_COMMIT_HASH ]] \
+                && echo $UPSTREAM_COMMIT_HASH \
+                || git ls-remote "$BASE_URL.git" HEAD \
+                    | awk '{print $1}') \
             | sed -E "s/^(.{7}).+/\1/") \
         && echo "Using Bromite git commit $REVISION_HASH"
 
@@ -90,7 +97,7 @@ fetch-sync () {
     cd "$BUILD_DIR"
 
     url=$([[ $REVISION_HASH ]] \
-        && echo "https://api.github.com/repos/bromite/bromite/tarball/master" \
+        && echo "https://api.github.com/repos/bromite/bromite/tarball/${UPSTREAM_COMMIT_HASH:=master}" \
         || echo "$BASE_URL/archive/$REVISION.tar.gz")
 
     tarname=$([[ $REVISION_HASH ]] \
@@ -317,7 +324,7 @@ _setopts () {
 
     # Iterate options and assign var values to CLI args
     for opt in "${opts[@]}"; do
-        [[ $opt =~ '-h' ]] \
+        [[ $opt =~ '-h, --help' ]] \
             && continue
 
         local opt_arr=($(echo "$opt" \
@@ -454,7 +461,7 @@ HEREDOC
 
 main () {
     # Help Menu
-    [[ $(echo "$@") =~ -h|--help ]] \
+    [[ $(echo "$@") == -h ]] || [[ $(echo "$@") == --help ]] \
         && _help \
         && return
 
