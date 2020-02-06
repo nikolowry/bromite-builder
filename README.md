@@ -65,10 +65,7 @@ Builds produced with `bromite-builder` differ from official Bromite releases wit
 the following:
 
 - Retains Chromium branding and namespace
-- Symbols are turned off for faster build times. For even faster builds,
-build with option `--gn-args="use_jumbo_build=true jumbo_file_merge_limit=8"`.
-Use jumbo builds at your own risk as they are no longer supported by Chromium,
-https://groups.google.com/a/chromium.org/forum/#!topic/chromium-dev/DP9TQszzQLI.
+- Symbols are turned off for faster build times
 - Optionally revert the white Navigation Bar in the Material Design Refresh (MD2)
 to black with option `--dark-navbar`
 
