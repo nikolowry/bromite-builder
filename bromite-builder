@@ -135,7 +135,7 @@ fetch-sync () {
     git clean -fdxq --exclude="out/Default_${REVISION}_*"
 
     # Accept any y/n prompts
-    echo 'y' | gclient sync --with_branch_heads --force --reset -r "$REVISION"
+    echo 'y' | gclient sync --with_branch_heads --force --reset -r "$REVISION" -D
 }
 
 prepare () {
@@ -248,7 +248,7 @@ build () {
     # Get Bromite GN Args if they exist
     [[ -e $bromite_src/GN_ARGS ]] \
         && gn_args_bromite="$(
-            sed -E "s/^(symbol_level|remove_webcore_debug_symbols|exclude_unwind_tables\s*)\=.+//g" \
+            sed -E "s/^(symbol_level|strip_absolute_paths_from_debug_symbols\s*)\=.+//g" \
                 < "$bromite_src"/GN_ARGS \
             | tr "\n" " ")" \
         || gn_args_bromite=''
