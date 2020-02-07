@@ -12,14 +12,13 @@ GN_ARGS=
 PATCHES_DIR=
 NO_BROMITE_PATCHES=
 REVISION=
-REVISION_HASH=
 TARGET_TYPES=(
     'chrome_modern_public_apk'
     'chrome_public_apk'
     'monochrome_public_apk')
 TARGET=${TARGET_TYPES[0]}
 UPSTREAM=
-UPSTREAM_COMMIT_HASH=
+UPSTREAM_SHORT_HASH=
 
 # Options
 opts=(
@@ -30,8 +29,7 @@ opts=(
     "-t, --target=<target> | Where Ninja <target> is: $(echo "${TARGET_TYPES[@]}" \
         | sed -E "s/\s/, /g"). Defaults to $TARGET"
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. Defaults to Bromite's latest release."
-    "-u, --upstream | Use Bromite's latest git commit instead of a release tag. If set, any Chromium tag can be assigned to <revision>"
-    "--upstream-commit-hash=<commit-hash> | Specifiy a Bromite commit rather than use the latest from upstream. Complete SHA1 hash required"
+    "-u, --upstream=<commit-hash:=master> | Use a Bromite git commit instead of a release tag, defaults to the lastest commit in master. If set, any Chromium tag can be assigned to <revision>"
     "--no-bromite-patches | Only apply patches from Bromite's chromium_patches_list.txt"
     "--dark-navbar | Prefer a dark navigation bar over a white one"
     "-h, --help | Print help menu")
@@ -54,16 +52,13 @@ set-revision () {
     local error_msg
     local latest
 
-    [[ $UPSTREAM_COMMIT_HASH ]] \
-        && UPSTREAM=1
-
     [[ $UPSTREAM ]] \
-        && REVISION_HASH=$(echo $([[ $UPSTREAM_COMMIT_HASH ]] \
-                && echo $UPSTREAM_COMMIT_HASH \
+        && UPSTREAM_SHORT_HASH=$(echo $([[ $UPSTREAM != master ]] \
+                && echo $UPSTREAM \
                 || git ls-remote "$BASE_URL.git" HEAD \
                     | awk '{print $1}') \
             | sed -E "s/^(.{7}).+/\1/") \
-        && echo "Using Bromite git commit $REVISION_HASH"
+        && echo "Using Bromite git commit $UPSTREAM_SHORT_HASH"
 
     [[ $UPSTREAM ]] && [[ $REVISION ]] \
         && url="https://github.com/chromium/chromium/archive/$REVISION.tar.gz"
@@ -96,12 +91,12 @@ fetch-sync () {
     mkdir -p "$BUILD_DIR"
     cd "$BUILD_DIR"
 
-    url=$([[ $REVISION_HASH ]] \
-        && echo "https://api.github.com/repos/bromite/bromite/tarball/${UPSTREAM_COMMIT_HASH:=master}" \
+    url=$([[ $UPSTREAM ]] \
+        && echo "https://api.github.com/repos/bromite/bromite/tarball/$UPSTREAM" \
         || echo "$BASE_URL/archive/$REVISION.tar.gz")
 
-    tarname=$([[ $REVISION_HASH ]] \
-        && echo "bromite-$REVISION_HASH" \
+    tarname=$([[ $UPSTREAM_SHORT_HASH ]] \
+        && echo "bromite-$UPSTREAM_SHORT_HASH" \
         || echo "bromite-$REVISION")
 
     # Fetch & Extract Bromite
@@ -111,7 +106,7 @@ fetch-sync () {
     echo "Extracting Bromite Archive"
     tar -xf "$tarname.tar.gz"
 
-    [[ $REVISION_HASH ]] \
+    [[ $UPSTREAM_SHORT_HASH ]] \
         && rm -rf "$tarname" \
         && mv "bromite-$tarname" "$tarname"
 
@@ -151,8 +146,8 @@ prepare () {
     [[ $(command -v apt-get) ]] \
         && ./build/install-build-deps-android.sh
 
-    bromite_dir=$([[ $REVISION_HASH ]] \
-        && echo "$BUILD_DIR/bromite-$REVISION_HASH" \
+    bromite_dir=$([[ $UPSTREAM_SHORT_HASH ]] \
+        && echo "$BUILD_DIR/bromite-$UPSTREAM_SHORT_HASH" \
         || echo "$BUILD_DIR/bromite-$REVISION")
 
     bromite_src=$([[ -d "$bromite_dir/build" ]] \
@@ -233,8 +228,8 @@ build () {
     sed -i 's|"-O0"|"-O2"|g' \
         "$BUILD_DIR/chromium/src/build/config/compiler/BUILD.gn"
 
-    bromite_dir=$([[ $REVISION_HASH ]] \
-        && echo "$BUILD_DIR/bromite-$REVISION_HASH" \
+    bromite_dir=$([[ $UPSTREAM_SHORT_HASH ]] \
+        && echo "$BUILD_DIR/bromite-$UPSTREAM_SHORT_HASH" \
         || echo "$BUILD_DIR/bromite-$REVISION")
 
     bromite_src=$([[ -d "$bromite_dir/build" ]] \
@@ -337,6 +332,7 @@ _setopts () {
 
         local opt_var
         local opt_var_types
+        local arg_next
         local idx=0
 
         opt_var=$(echo "${opt_arr[1]}" \
@@ -349,13 +345,26 @@ _setopts () {
         for arg in "${args_arr[@]}"; do
             case $arg in
                 ${opt_arr[0]}|${opt_arr[1]})
-                    if [[ ! $opt =~ \=\<.+\> ]]; then
-                        export "$opt_var=1"
-                    elif [[ ! ${!opt_var_types:-} ]] \
+                    arg_next=${args_arr[$idx + 1]:-}
+
+                    # Boolean opts
+                    [[ ! $opt =~ \=\<.+\> ]] \
+                        && export "$opt_var=1" \
+                        && continue
+
+                    # Flags that need to fallback to default values
+                    [[ $opt =~ \=\<.+:\=.+\> ]] \
+                            && [[ ${arg_next::1} == '-' || ! $arg_next ]] \
+                        && export "$opt_var=$(echo "$opt" \
+                            | sed -E "s/\s*\|.+//g" \
+                            | sed -E "s/.+\<.+:\=([^\>]+).+/\1/")" \
+                        && continue
+
+                    # Flags with custom or type-specific values
+                    [[ ! ${!opt_var_types:-} ]] \
                             || [[ $(printf "%s\n" ${!opt_var_types} \
-                                | grep -n "^${args_arr[$idx + 1]}$") ]]; then
-                        export "$opt_var=${args_arr[$idx + 1]}"
-                    fi
+                                | grep -n "^${args_arr[$idx + 1]}$") ]] \
+                        && export "$opt_var=${args_arr[$idx + 1]}"
                     ;;
             esac
 
@@ -388,9 +397,9 @@ _localpatches () {
     patches_dirname=$(basename $PATCHES_DIR)
 
     [[ ! -d "$patches_dir_abspath/$patches_dirname" ]] \
-            && echo "$patches_dir_msg" \
-            && export PATCHES_DIR= \
-            && return
+        && echo "$patches_dir_msg" \
+        && export PATCHES_DIR= \
+        && return
 
     export PATCHES_DIR="$patches_dir_abspath/$patches_dirname"
 }
