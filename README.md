@@ -21,7 +21,7 @@ Ubuntu users' systems will be bootstrapped via Chromium's
 [`build/install-build-deps-android.sh`](https://chromium.googlesource.com/chromium/src.git/+/master/build/install-build-deps-android.sh)
 
 All other distro users should follow Chromium's
-[Notes For Other Distros](https://chromium.googlesource.com/chromium/src/+/master/docs/linux_build_instructions.md#notes)
+[Notes For Other Distros](https://chromium.googlesource.com/chromium/src/+/master/docs/linux/build_instructions.md#notes)
 
 Checking out the repo:
 ```shell
