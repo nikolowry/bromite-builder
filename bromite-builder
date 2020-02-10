@@ -44,7 +44,7 @@ BASE_URL="https://github.com/bromite/bromite"
 PYTHONPATH=${PYTHONPATH:-}
 
 clean () {
-    rm -rf "$BUILD_DIR"
+    rm -rf "$BUILD_DIR/chromium/src/out"
 }
 
 set-revision () {
