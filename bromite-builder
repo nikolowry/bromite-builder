@@ -124,11 +124,14 @@ fetch-sync () {
     # Use custom debloated gclient config
     cp -f "$CWD/.gclientconfig" .gclient
 
+    # Enter chromium src root
     cd src
 
-    # Build deps if "apt-get" command detected
+    # If "apt-get" command detected, use install-build-deps to bootstrap env
+    # Also ensure jdk is installed, rather than depend on third_party/jdk
     [[ $(command -v apt-get) ]] \
-        && ./build/install-build-deps-android.sh
+        && ./build/install-build-deps-android.sh \
+        && apt-get -qq install default-jdk
 
     # Reset tree
     git clean -fdxq --exclude="out/Default_${REVISION}"
