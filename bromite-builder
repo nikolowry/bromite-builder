@@ -127,7 +127,7 @@ fetch-sync () {
     cd src
 
     # Reset tree
-    git clean -fdxq --exclude="out/Default_${REVISION}_*"
+    git clean -fdxq --exclude="out/Default_${REVISION}"
 
     # Accept any y/n prompts
     echo 'y' | gclient sync --with_branch_heads --force --reset -r "$REVISION"
@@ -237,7 +237,7 @@ build () {
         || echo "$bromite_dir")
 
     cd "$BUILD_DIR/chromium/src"
-    export CHROMIUM_OUTPUT_DIR="out/Default_${REVISION}_${ARCH}"
+    export CHROMIUM_OUTPUT_DIR="out/Default_${REVISION}"
     mkdir -p "$CHROMIUM_OUTPUT_DIR"
 
     # Get Bromite GN Args if they exist
