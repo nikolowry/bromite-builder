@@ -126,6 +126,10 @@ fetch-sync () {
 
     cd src
 
+    # Build deps if "apt-get" command detected
+    [[ $(command -v apt-get) ]] \
+        && ./build/install-build-deps-android.sh
+
     # Reset tree
     git clean -fdxq --exclude="out/Default_${REVISION}"
 
@@ -141,10 +145,6 @@ prepare () {
 
     [[ ! -d $BUILD_DIR/chromium/src ]] \
         && fetch-sync
-
-    # Build deps if "apt-get" command detected
-    [[ $(command -v apt-get) ]] \
-        && ./build/install-build-deps-android.sh
 
     bromite_dir=$([[ $UPSTREAM_SHORT_HASH ]] \
         && echo "$BUILD_DIR/bromite-$UPSTREAM_SHORT_HASH" \
