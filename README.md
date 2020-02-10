@@ -25,7 +25,7 @@ All other distro users should follow Chromium's
 
 Checking out the repo:
 ```shell
-git clone git@github.com:nikolowry/bromite-builder; \
+git clone https://github.com/nikolowry/bromite-builder.git; \
 cd bromite-builder
 ```
 
