@@ -55,6 +55,7 @@ Options:
     -u, --upstream=<commit-hash:=master>    Use a Bromite git commit instead of a release tag, defaults to the lastest commit in master. If set, any Chromium tag can be assigned to <revision>
     --no-bromite-patches                    Only apply patches from Bromite's chromium_patches_list.txt
     --dark-navbar                           Prefer a dark navigation bar over a white one
+    --ubuntu-install-build-deps             Run Chromium's build/install-build-deps-android.sh during fetch-sync. Only applies to Ubuntu based-distros.
     -h, --help                              Print help menu
 ```
 

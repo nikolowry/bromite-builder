@@ -17,6 +17,7 @@ TARGET_TYPES=(
     'chrome_public_apk'
     'monochrome_public_apk')
 TARGET=${TARGET_TYPES[0]}
+UBUNTU_INSTALL_BUILD_DEPS=
 UPSTREAM=
 UPSTREAM_SHORT_HASH=
 
@@ -32,6 +33,7 @@ opts=(
     "-u, --upstream=<commit-hash:=master> | Use a Bromite git commit instead of a release tag, defaults to the lastest commit in master. If set, any Chromium tag can be assigned to <revision>"
     "--no-bromite-patches | Only apply patches from Bromite's chromium_patches_list.txt"
     "--dark-navbar | Prefer a dark navigation bar over a white one"
+    "--ubuntu-install-build-deps | Run Chromium's build/install-build-deps-android.sh during fetch-sync. Only applies to Ubuntu based-distros."
     "-h, --help | Print help menu")
 
 # Constants
@@ -129,9 +131,11 @@ fetch-sync () {
 
     # If "apt-get" command detected, use install-build-deps to bootstrap env
     # Also ensure jdk is installed, rather than depend on third_party/jdk
+    # Requires root privileges and --ubuntu-install-build-deps flag
     [[ $(command -v apt-get) ]] \
-        && ./build/install-build-deps-android.sh \
-        && apt-get -qq install default-jdk
+        && [[ $UBUNTU_INSTALL_BUILD_DEPS ]] \
+        && sudo ./build/install-build-deps-android.sh \
+        && sudo apt-get -qq install default-jdk
 
     # Reset tree
     git clean -fdxq --exclude="out/Default_${REVISION}"
