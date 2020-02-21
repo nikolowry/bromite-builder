@@ -47,16 +47,18 @@ If no [command] is set, the default command sequence will be executed:
     - build
 
 Options:
-    -a, --arch=<arch>                       Where <arch> is: arm, arm64, x86. Defaults to arm
-    -g, --gn-args=<args>                    Where <args> is a string of GN build arguments
-    -p, --patches-dir=<dir>                 Where <dir> is a path to a directory containing custom patches
-    -t, --target=<target>                   Where Ninja <target> is: chrome_modern_public_apk, chrome_public_apk, monochrome_public_apk. Defaults to chrome_modern_public_apk
-    -r, --revision=<revision>               Where <revision> is a Bromite release tag. Defaults to Bromite's latest release.
-    -u, --upstream=<commit-hash:=master>    Use a Bromite git commit instead of a release tag, defaults to the lastest commit in master. If set, any Chromium tag can be assigned to <revision>
-    --no-bromite-patches                    Only apply patches from Bromite's chromium_patches_list.txt
-    --dark-navbar                           Prefer a dark navigation bar over a white one
-    --ubuntu-install-build-deps             Run Chromium's build/install-build-deps-android.sh during fetch-sync. Only applies to Ubuntu based-distros.
-    -h, --help                              Print help menu
+    -a, --arch=<arch>               Where <arch> is: arm, arm64, x86. Defaults to arm
+    -g, --gn-args=<args>            Where <args> is a string of GN build arguments
+    -p, --patches-dir=<dir>         Where <dir> is a path to a directory containing custom patches
+    -t, --target=<target>           Where Ninja <target> is: chrome_modern_public_apk, chrome_public_apk,
+                                    monochrome_public_apk. Defaults to chrome_modern_public_apk
+    -r, --revision=<revision>       Where <revision> is a Bromite release tag. Defaults to latest release
+    -u, --upstream=<commit-hash>    Where <commit-hash> is a long-format git commit. Defaults to master's
+                                    HEAD. When set, any Chromium tag can be assigned to <revision>
+    --no-bromite-patches            Only apply patches from Bromite's chromium_patches_list.txt
+    --dark-navbar                   Prefer a dark navigation bar over a white one
+    --ubuntu-install-build-deps     Run Chromium's build/install-build-deps-android.sh during fetch-sync
+    -h, --help                      Print help menu
 ```
 
 ## <a name="notes"></a>Notes
