@@ -1,7 +1,7 @@
 diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res/values/colors.xml
---- a/chrome/android/java/res/values/colors.xml	2019-12-20 13:11:00.558755287 -0500
-+++ b/chrome/android/java/res/values/colors.xml	2019-12-20 13:16:31.701065555 -0500
-@@ -177,6 +177,6 @@
+--- a/chrome/android/java/res/values/colors.xml	2020-03-14 19:23:02.987294262 -0400
++++ b/chrome/android/java/res/values/colors.xml	2020-03-14 19:24:23.886719837 -0400
+@@ -142,8 +142,8 @@
      <!-- Other colors -->
      <color name="media_viewer_bg">#000000</color>
      <color name="image_viewer_bg">#0E0E0E</color>
@@ -9,11 +9,13 @@ diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res
 -    <color name="bottom_system_nav_divider_color">@color/black_alpha_12</color>
 +    <color name="bottom_system_nav_color">@android:color/black</color>
 +    <color name="bottom_system_nav_divider_color">@android:color/black</color>
-     <color name="search_box_hint">@color/default_text_color_secondary</color>
+     <color name="thumbnail_placeholder_on_primary_bg" tools:ignore="UnusedResources">@color/modern_secondary_color</color>
+     <color name="tab_layout_selected_tab_color">@color/default_text_color_blue</color>
+     <color name="web_notification_text">#CCCCCC</color>
 diff -rupN a/chrome/android/java/res/values/values.xml b/chrome/android/java/res/values/values.xml
---- a/chrome/android/java/res/values/values.xml	2019-12-01 13:11:39.858559316 -0500
-+++ b/chrome/android/java/res/values/values.xml	2019-12-01 13:17:06.941537065 -0500
-@@ -78,6 +78,6 @@
+--- a/chrome/android/java/res/values/values.xml	2020-03-14 19:23:28.853776562 -0400
++++ b/chrome/android/java/res/values/values.xml	2020-03-14 19:24:38.613282607 -0400
+@@ -73,6 +73,6 @@
 
      <!-- Bottom navigation bar styling. -->
 -    <bool name="window_light_navigation_bar">true</bool>
