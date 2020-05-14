@@ -51,6 +51,7 @@ If no [command] is set, the default command sequence will be executed:
 Options:
     -a, --arch=<arch>               Where <arch> is: arm, arm64, x86. Defaults to arm
     -g, --gn-args=<args>            Where <args> is a string of GN build arguments
+    -o, --output-dir=<dir>          Where <dir> is a path to save the APK. Defaults to ./out
     -p, --patches-dir=<dir>         Where <dir> is a path to a directory containing custom patches
     -t, --target=<target>           Where Ninja <target> is: chrome_modern_public_apk, chrome_public_apk,
                                     monochrome_public_apk. Defaults to chrome_modern_public_apk

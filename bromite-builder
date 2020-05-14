@@ -9,6 +9,7 @@ ARCH_TYPES=('arm' 'arm64' 'x86')
 ARCH=${ARCH_TYPES[0]}
 DARK_NAVBAR=
 GN_ARGS=
+OUTPUT_DIR="$(pwd)/out"
 PATCHES_DIR=
 NO_BROMITE_PATCHES=
 REVISION=
@@ -26,6 +27,7 @@ opts=(
     "-a, --arch=<arch> | Where <arch> is: $(echo "${ARCH_TYPES[@]}" \
         | sed -E "s/\s/, /g"). Defaults to $ARCH"
     "-g, --gn-args=<args> | Where <args> is a string of GN build arguments"
+    "-o, --output-dir=<dir> | Where <dir> is a path to save the APK. Defaults to ./out"
     "-p, --patches-dir=<dir> | Where <dir> is a path to a directory containing custom patches" \
     "-t, --target=<target> | Where Ninja <target> is: $(echo "${TARGET_TYPES[@]}" \
         | sed -E "s/\s/, /g"). Defaults to $TARGET"
@@ -223,8 +225,7 @@ build () {
     local gn_args_user_arr
     local gn_args
 
-    local dist_dir
-    local dist_apk_basename
+    local output_apk_basename
     local apk_basename
 
     [[ ! -d $BUILD_DIR/chromium/src ]] \
@@ -284,11 +285,10 @@ build () {
     gn gen "--args=$gn_args" "$CHROMIUM_OUTPUT_DIR"
     autoninja -C "$CHROMIUM_OUTPUT_DIR" "$TARGET"
 
-    # Prep ./dist dir
-    dist_dir="$CWD/dist"
-    mkdir -p "$dist_dir"
+    # Prep output dir
+    mkdir -p "$OUTPUT_DIR"
 
-    # Copy and Rename APK to ./dist
+    # Rename APK
     apk_basename=$(echo "$TARGET" \
         | sed -e 's|_apk||g' \
         | sed -e 's/^./\U&/' \
@@ -296,13 +296,16 @@ build () {
         | sed -e 's/_//g')
 
     [[ $DARK_NAVBAR ]] \
-        && dist_apk_basename="$apk_basename-DarkNavbar" \
-        || dist_apk_basename="$apk_basename"
+        && output_apk_basename="$apk_basename-DarkNavbar" \
+        || output_apk_basename="$apk_basename"
 
-    dist_apk_basename="$dist_apk_basename-$REVISION-$ARCH"
+    output_apk_basename="$output_apk_basename-$REVISION-$ARCH"
 
+    # Copy to output dir
     cp -f "$CHROMIUM_OUTPUT_DIR/apks/$apk_basename.apk" \
-        "$dist_dir/$dist_apk_basename.apk"
+        "$OUTPUT_DIR/$output_apk_basename.apk"
+
+    echo "Successfully built to $OUTPUT_DIR/$output_apk_basename.apk"
 }
 
 _setopts () {
