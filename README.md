@@ -59,6 +59,7 @@ Options:
     -u, --upstream=<commit-hash>    Where <commit-hash> is a long-format git commit. Defaults to master's
                                     HEAD. When set, any Chromium tag can be assigned to <revision>
     --no-bromite-patches            Only apply patches from Bromite's chromium_patches_list.txt
+    --no-skip-patches               Exit on failed patch attempts
     --dark-navbar                   Prefer a dark navigation bar over a white one
     --ubuntu-install-build-deps     Run Chromium's build/install-build-deps-android.sh during fetch-sync
     -h, --help                      Print help menu

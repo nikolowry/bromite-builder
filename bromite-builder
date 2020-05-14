@@ -12,6 +12,7 @@ GN_ARGS=
 OUTPUT_DIR="$(pwd)/out"
 PATCHES_DIR=
 NO_BROMITE_PATCHES=
+NO_SKIP_PATCHES=
 REVISION=
 TARGET_TYPES=(
     'chrome_modern_public_apk'
@@ -34,6 +35,7 @@ opts=(
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. Defaults to latest release"
     "-u, --upstream=<commit-hash:=master> | Where <commit-hash> is a long-format git commit. Defaults to master's HEAD. When set, any Chromium tag can be assigned to <revision>"
     "--no-bromite-patches | Only apply patches from Bromite's chromium_patches_list.txt"
+    "--no-skip-patches | Exit on failed patch attempts"
     "--dark-navbar | Prefer a dark navigation bar over a white one"
     "--ubuntu-install-build-deps | Run Chromium's build/install-build-deps-android.sh during fetch-sync"
     "-h, --help | Print help menu")
@@ -209,7 +211,9 @@ prepare () {
 
     # Apply Patches
     for patchfile in "${patchlist[@]}"; do
-        [[ "$(git apply --check "$patchfile" &>/dev/null; echo $?)" -gt 0 ]] \
+        [[ "$(git apply --whitespace=nowarn --check "$patchfile" &>/dev/null; \
+                echo $?)" -gt 0 ]] \
+            && [[ ! $NO_SKIP_PATCHES ]] \
             && echo "Skipping, doesn't apply: $(basename "$patchfile")" \
             && continue
         echo "Applying patch: $(basename "$patchfile")"
