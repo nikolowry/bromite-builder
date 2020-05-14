@@ -19,6 +19,8 @@ More than 16GB is highly recommended.
 
 Ubuntu users' systems will be bootstrapped via Chromium's
 [`build/install-build-deps-android.sh`](https://chromium.googlesource.com/chromium/src.git/+/master/build/install-build-deps-android.sh)
+if the `--ubuntu-install-build-deps` flag is set. It requires root permissions
+and may install unwanted software.
 
 All other distro users should follow Chromium's
 [Notes For Other Distros](https://chromium.googlesource.com/chromium/src/+/master/docs/linux/build_instructions.md#notes)
