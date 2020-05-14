@@ -1,6 +1,6 @@
 diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res/values/colors.xml
---- a/chrome/android/java/res/values/colors.xml	2020-05-13 19:53:07.567983196 -0400
-+++ b/chrome/android/java/res/values/colors.xml	2020-05-13 19:54:03.988013714 -0400
+--- a/chrome/android/java/res/values/colors.xml	2020-05-14 18:26:11.004359491 -0400
++++ b/chrome/android/java/res/values/colors.xml	2020-05-14 18:27:22.981230463 -0400
 @@ -137,8 +137,8 @@
      <!-- Other colors -->
      <color name="media_viewer_bg">#000000</color>
@@ -12,3 +12,14 @@ diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res
      <color name="thumbnail_placeholder_on_primary_bg" tools:ignore="UnusedResources">@color/default_bg_color_secondary</color>
      <color name="tab_layout_selected_tab_color">@color/default_text_color_blue</color>
      <color name="web_notification_text">#CCCCCC</color>
+diff -rupN a/chrome/android/java/res/values/values.xml b/chrome/android/java/res/values/values.xml
+--- a/chrome/android/java/res/values/values.xml	2020-05-14 18:26:18.561047673 -0400
++++ b/chrome/android/java/res/values/values.xml	2020-05-14 18:27:35.644599621 -0400
+@@ -90,6 +90,6 @@
+
+     <!-- Bottom navigation bar styling. -->
+-    <bool name="window_light_navigation_bar">true</bool>
++    <bool name="window_light_navigation_bar">false</bool>
+
+     <!-- Status bar icon styling. -->
+     <bool name="window_light_status_bar">true</bool>
