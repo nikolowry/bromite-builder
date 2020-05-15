@@ -153,6 +153,7 @@ prepare () {
     local bromite_src
     local patchlist_path
     local patchlist
+    local ungoogled_dir
 
     [[ ! -d $BUILD_DIR/chromium/src ]] \
         && fetch-sync
@@ -211,14 +212,29 @@ prepare () {
 
     # Apply Patches
     for patchfile in "${patchlist[@]}"; do
+        [[ "$patchfile" =~ domain-substitution.patch ]] \
+            && continue
+
         [[ "$(git apply --whitespace=nowarn --check "$patchfile" &>/dev/null; \
                 echo $?)" -gt 0 ]] \
             && [[ ! $NO_SKIP_PATCHES ]] \
             && echo "Skipping, doesn't apply: $(basename "$patchfile")" \
             && continue
+
         echo "Applying patch: $(basename "$patchfile")"
         git apply --whitespace=nowarn "$patchfile"
     done
+
+    # Domain Substitution
+    echo "Applying Ungoogled Chromium's domain substitutions"
+    ungoogled_dir="$CWD/.bin/ungoogled-chromium"
+    rm -f "$ungoogled_dir/build/domainsubcache.tar.gz"
+
+    domain_substitution --quiet apply \
+        -r "$ungoogled_dir/domain_regex.list" \
+        -f "$ungoogled_dir/domain_substitution.list" \
+        -c "$ungoogled_dir/build/domainsubcache.tar.gz" \
+        ./
 }
 
 build () {
@@ -458,6 +474,21 @@ _localbin () {
         && curl -s "$protobuf_repo/protoc-gen-javalite/3.0.0/$protoc_javalite_bin" \
             -o "$CWD/.bin/protoc-gen-javalite" \
         && chmod 755 "$CWD/.bin/protoc-gen-javalite"
+
+    # Ungoogled Chromium
+    [[ ! -d $CWD/.bin/ungoogled-chromium ]] \
+        && cd "$CWD/.bin" \
+        && echo "Fetching Ungoogled Chromium" \
+        && git clone -q https://github.com/Eloston/ungoogled-chromium.git
+
+    cd "$CWD/.bin/ungoogled-chromium"
+    git checkout master -q
+    git pull -q
+
+    mkdir -p "$CWD/.bin/ungoogled-chromium/build"
+
+    ln -sf "$CWD/.bin/ungoogled-chromium/utils/domain_substitution.py" \
+        "$CWD/.bin/domain_substitution"
 }
 
 _getcmds () {
