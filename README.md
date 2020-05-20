@@ -1,6 +1,6 @@
 # Bromite Builder
 
-Utility script for building [Bromite]( https://github.com/bromite/bromite) releases
+Utility script for building [Bromite](https://github.com/bromite/bromite) releases
 
 - [Requirements](#requirements)
 - [Setup](#setup)
@@ -13,7 +13,8 @@ Utility script for building [Bromite]( https://github.com/bromite/bromite) relea
 - A 64-bit Intel machine running Linux with at least 8GB of RAM.
 More than 16GB is highly recommended.
 - At least 100GB of free disk space.
-- You must have Git and Python 2 installed already.
+- Git and Python 2 for checking out and building Chromium
+- Python 3 for [Ungoogled Chromium's](https://github.com/Eloston/ungoogled-chromium) domain substitution utility
 
 ## <a name="setup"></a>Setup
 
