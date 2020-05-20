@@ -221,6 +221,7 @@ prepare () {
             echo $?)
 
         [[ $patch_status -gt 0 ]] \
+            && [[ ! $NO_SKIP_PATCHES ]] \
             && [[ "$patchfile" =~ domain-substitution.patch ]] \
             && ungoogled_domains_fallback=$patch_status \
             && continue
