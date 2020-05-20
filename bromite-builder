@@ -151,9 +151,13 @@ fetch-sync () {
 prepare () {
     local bromite_dir
     local bromite_src
+
     local patchlist_path
     local patchlist
+    local patch_status
+
     local ungoogled_dir
+    local ungoogled_domains_fallback=
 
     [[ ! -d $BUILD_DIR/chromium/src ]] \
         && fetch-sync
@@ -212,11 +216,16 @@ prepare () {
 
     # Apply Patches
     for patchfile in "${patchlist[@]}"; do
-        [[ "$patchfile" =~ domain-substitution.patch ]] \
+        patch_status=$(git apply --whitespace=nowarn --check "$patchfile" \
+            &>/dev/null; \
+            echo $?)
+
+        [[ $patch_status -gt 0 ]] \
+            && [[ "$patchfile" =~ domain-substitution.patch ]] \
+            && ungoogled_domains_fallback=$patch_status \
             && continue
 
-        [[ "$(git apply --whitespace=nowarn --check "$patchfile" &>/dev/null; \
-                echo $?)" -gt 0 ]] \
+        [[ $patch_status -gt 0 ]] \
             && [[ ! $NO_SKIP_PATCHES ]] \
             && echo "Skipping, doesn't apply: $(basename "$patchfile")" \
             && continue
@@ -225,16 +234,16 @@ prepare () {
         git apply --whitespace=nowarn "$patchfile"
     done
 
-    # Domain Substitution
-    echo "Applying Ungoogled Chromium's domain substitutions"
-    ungoogled_dir="$CWD/.bin/ungoogled-chromium"
-    rm -f "$ungoogled_dir/build/domainsubcache.tar.gz"
-
-    domain_substitution --quiet apply \
-        -r "$ungoogled_dir/domain_regex.list" \
-        -f "$ungoogled_dir/domain_substitution.list" \
-        -c "$ungoogled_dir/build/domainsubcache.tar.gz" \
-        ./
+    # Domain Substitution Fallback via Ungoogled
+    [[ $ungoogled_domains_fallback ]] \
+        && echo "Applying Ungoogled Chromium's domain substitutions" \
+        && ungoogled_dir="$CWD/.bin/ungoogled-chromium" \
+        && rm -f "$ungoogled_dir/build/domainsubcache.tar.gz" \
+        && domain_substitution --quiet apply \
+            -r "$ungoogled_dir/domain_regex.list" \
+            -f "$ungoogled_dir/domain_substitution.list" \
+            -c "$ungoogled_dir/build/domainsubcache.tar.gz" \
+            ./
 }
 
 build () {
