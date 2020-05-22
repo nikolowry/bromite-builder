@@ -235,16 +235,19 @@ prepare () {
         git apply --whitespace=nowarn "$patchfile"
     done
 
+    [[ ! $ungoogled_domains_fallback ]] \
+        && return
+
     # Domain Substitution Fallback via Ungoogled
-    [[ $ungoogled_domains_fallback ]] \
-        && echo "Applying Ungoogled Chromium's domain substitutions" \
-        && ungoogled_dir="$CWD/.bin/ungoogled-chromium" \
-        && rm -f "$ungoogled_dir/build/domainsubcache.tar.gz" \
-        && domain_substitution --quiet apply \
-            -r "$ungoogled_dir/domain_regex.list" \
-            -f "$ungoogled_dir/domain_substitution.list" \
-            -c "$ungoogled_dir/build/domainsubcache.tar.gz" \
-            ./
+    echo "Applying Ungoogled Chromium's domain substitutions"
+    ungoogled_dir="$CWD/.bin/ungoogled-chromium"
+    rm -f "$ungoogled_dir/build/domainsubcache.tar.gz"
+
+    domain_substitution --quiet apply \
+        -r "$ungoogled_dir/domain_regex.list" \
+        -f "$ungoogled_dir/domain_substitution.list" \
+        -c "$ungoogled_dir/build/domainsubcache.tar.gz" \
+        ./
 }
 
 build () {
