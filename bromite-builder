@@ -159,12 +159,12 @@ prepare () {
     local ungoogled_dir
     local ungoogled_domains_fallback=
 
-    [[ ! -d $BUILD_DIR/chromium/src ]] \
-        && fetch-sync
-
     bromite_dir=$([[ $UPSTREAM_SHORT_HASH ]] \
         && echo "$BUILD_DIR/bromite-$UPSTREAM_SHORT_HASH" \
         || echo "$BUILD_DIR/bromite-$REVISION")
+
+    [[ ! -d $BUILD_DIR/chromium/src ]] || [[ ! -d $bromite_dir ]] \
+        && fetch-sync
 
     bromite_src=$([[ -d "$bromite_dir/build" ]] \
         && echo "$bromite_dir/build" \
