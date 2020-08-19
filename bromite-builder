@@ -208,16 +208,14 @@ prepare () {
         || patchlist=("$BUILD_DIR"/patches/*.patch)
 
     # Add custom patches to patchlist
-    if [[ -e $bromite_src/bromite_patches_list.txt ]]; then
-        [[ $DARK_NAVBAR ]] \
-            && patchlist+=("$BUILD_DIR/patches/Dark-Navbar.patch")
+    [[ $DARK_NAVBAR ]] \
+        && patchlist+=("$BUILD_DIR/patches/Dark-Navbar.patch")
 
-        if [[ $PATCHES_DIR ]] && [[ -d $PATCHES_DIR ]]; then
-            for patchfile in "$PATCHES_DIR"/*.patch; do
-                [[ ! -e "$bromite_src/patches/$(basename "$patchfile")" ]] \
-                    && patchlist+=("$patchfile")
-            done
-        fi
+    if [[ $PATCHES_DIR ]] && [[ -d $PATCHES_DIR ]]; then
+        for patchfile in "$PATCHES_DIR"/*.patch; do
+            [[ ! -e "$bromite_src/patches/$(basename "$patchfile")" ]] \
+                && patchlist+=("$patchfile")
+        done
     fi
 
     # Apply Patches
