@@ -172,7 +172,7 @@ prepare () {
 
     patchlist_path=$([[ $NO_BROMITE_PATCHES ]] \
         && echo "$bromite_src/chromium_patches_list.txt" \
-        || echo "$bromite_src/patches_list.txt")
+        || echo "$bromite_src/bromite_patches_list.txt")
 
     # Prep Patching
     rm -rf "$BUILD_DIR/patches"
@@ -202,7 +202,7 @@ prepare () {
         || patchlist=("$BUILD_DIR"/patches/*.patch)
 
     # Add custom patches to patchlist
-    if [[ -e $bromite_src/patches_list.txt ]]; then
+    if [[ -e $bromite_src/bromite_patches_list.txt ]]; then
         [[ $DARK_NAVBAR ]] \
             && patchlist+=("$BUILD_DIR/patches/Dark-Navbar.patch")
 
