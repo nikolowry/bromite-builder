@@ -54,8 +54,7 @@ Options:
     -g, --gn-args=<args>            Where <args> is a string of GN build arguments
     -o, --output-dir=<dir>          Where <dir> is a path to save the APK. Defaults to ./out
     -p, --patches-dir=<dir>         Where <dir> is a path to a directory containing custom patches
-    -t, --target=<target>           Where Ninja <target> is: chrome_modern_public_apk, chrome_public_apk,
-                                    monochrome_public_apk. Defaults to chrome_modern_public_apk
+    -t, --target=<target>           Where Ninja <target> is: chrome_public_apk
     -r, --revision=<revision>       Where <revision> is a Bromite release tag. Defaults to latest release
     -u, --upstream=<commit-hash>    Where <commit-hash> is a long-format git commit. Defaults to master's
                                     HEAD. When set, any Chromium tag can be assigned to <revision>

@@ -15,9 +15,7 @@ NO_BROMITE_PATCHES=
 NO_SKIP_PATCHES=
 REVISION=
 TARGET_TYPES=(
-    'chrome_modern_public_apk'
-    'chrome_public_apk'
-    'monochrome_public_apk')
+    'chrome_public_apk')
 TARGET=${TARGET_TYPES[0]}
 UBUNTU_INSTALL_BUILD_DEPS=
 UPSTREAM=
@@ -31,7 +29,7 @@ opts=(
     "-o, --output-dir=<dir> | Where <dir> is a path to save the APK. Defaults to ./out"
     "-p, --patches-dir=<dir> | Where <dir> is a path to a directory containing custom patches" \
     "-t, --target=<target> | Where Ninja <target> is: $(echo "${TARGET_TYPES[@]}" \
-        | sed -E "s/\s/, /g"). Defaults to $TARGET"
+        | sed -E "s/\s/, /g")"
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. Defaults to latest release"
     "-u, --upstream=<commit-hash:=master> | Where <commit-hash> is a long-format git commit. Defaults to master's HEAD. When set, any Chromium tag can be assigned to <revision>"
     "--no-bromite-patches | Only apply patches from Bromite's chromium_patches_list.txt"
