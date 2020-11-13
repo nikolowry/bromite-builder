@@ -520,15 +520,15 @@ cat <<HEREDOC
 Usage: ${0} [command...] [options...]
 
 Where optional [command] is one of:
-    $(_getcmds | sed -E "s/\s/, /g")
+  $(_getcmds | sed -E "s/\s/, /g")
 
 If no [command] is set, the default command sequence will be executed:
-$(printf "    - %s\n" "${DEFAULTS[@]}")
+$(printf "  - %s\n" "${DEFAULTS[@]}")
 
-Options:
-$(printf "    %s\n" "${opts[@]}" \
+Options:$(printf "\n  %s\n" "${opts[@]}" \
     | sed -E "s/(\<.+):\=[^\>]*(>)/\1\2/g" \
-    | column -t -s "|" -W 2 -c 111)
+    | sed -E "s/\s\|\s/\n    /g" \
+    | sed -E "s/\.\s/.\n    /g")
 
 HEREDOC
 }
