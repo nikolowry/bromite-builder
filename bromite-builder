@@ -287,13 +287,18 @@ build () {
     # Get Bromite GN Args if they exist
     [[ -e $bromite_src/GN_ARGS ]] \
         && gn_args_bromite="$(
-            sed -E "s/^(symbol_level|strip_absolute_paths_from_debug_symbols\s*)\=.+//g" \
+            sed -E "s/^(blink_)*symbol_level\=.+//g" \
                 < "$bromite_src"/GN_ARGS \
             | tr "\n" " ")" \
         || gn_args_bromite=''
 
-    # Combine default GN args
-    gn_args="target_cpu=\"$ARCH\" symbol_level=0 ${gn_args_bromite}"
+    # Combine Arch & Bromite GN args
+    gn_args="target_cpu=\"$ARCH\" ${gn_args_bromite}"
+
+    # Set default Bromite-Builder GN args for quicker builds
+    gn_args+=" blink_symbol_level=0"
+    gn_args+=" enable_resource_allowlist_generation=false"
+    gn_args+=" symbol_level=0"
 
     # Cast user GN args to array
     gn_args_user_arr=($(echo $GN_ARGS | tr " " "\n"))
