@@ -1,25 +1,24 @@
-diff -rupN a/chrome/android/java/res/values/colors.xml b/chrome/android/java/res/values/colors.xml
---- a/chrome/android/java/res/values/colors.xml	2020-05-14 18:26:11.004359491 -0400
-+++ b/chrome/android/java/res/values/colors.xml	2020-05-14 18:27:22.981230463 -0400
-@@ -137,8 +137,8 @@
-     <!-- Other colors -->
-     <color name="media_viewer_bg">#000000</color>
-     <color name="image_viewer_bg">#0E0E0E</color>
--    <color name="bottom_system_nav_color">@android:color/white</color>
+diff -ruN a/components/browser_ui/styles/android/java/res/values/colors.xml b/components/browser_ui/styles/android/java/res/values/colors.xml
+--- a/components/browser_ui/styles/android/java/res/values/colors.xml	2020-11-19 17:17:15.951027405 -0500
++++ b/components/browser_ui/styles/android/java/res/values/colors.xml	2020-11-19 17:19:37.451147193 -0500
+@@ -32,6 +32,6 @@
+     <color name="default_favicon_background_color">@color/default_control_color_normal_light</color>
+ 
+     <!-- Navigation bar colors -->
+-    <color name="bottom_system_nav_color">@color/modern_white</color>
 -    <color name="bottom_system_nav_divider_color">@color/black_alpha_12</color>
 +    <color name="bottom_system_nav_color">@android:color/black</color>
 +    <color name="bottom_system_nav_divider_color">@android:color/black</color>
-     <color name="thumbnail_placeholder_on_primary_bg" tools:ignore="UnusedResources">@color/default_bg_color_secondary</color>
-     <color name="tab_layout_selected_tab_color">@color/default_text_color_blue</color>
-     <color name="web_notification_text">#CCCCCC</color>
-diff -rupN a/chrome/android/java/res/values/values.xml b/chrome/android/java/res/values/values.xml
---- a/chrome/android/java/res/values/values.xml	2020-05-14 18:26:18.561047673 -0400
-+++ b/chrome/android/java/res/values/values.xml	2020-05-14 18:27:35.644599621 -0400
-@@ -90,6 +90,6 @@
-
+ </resources>
+diff -ruN a/components/browser_ui/styles/android/java/res/values/values.xml b/components/browser_ui/styles/android/java/res/values/values.xml
+--- a/components/browser_ui/styles/android/java/res/values/values.xml	2020-11-19 17:17:24.591035838 -0500
++++ b/components/browser_ui/styles/android/java/res/values/values.xml	2020-11-19 17:20:01.027830389 -0500
+@@ -5,7 +5,7 @@
+ 
+ <resources xmlns:tools="http://schemas.android.com/tools">
      <!-- Bottom navigation bar styling. -->
 -    <bool name="window_light_navigation_bar">true</bool>
 +    <bool name="window_light_navigation_bar">false</bool>
-
+ 
      <!-- Status bar icon styling. -->
      <bool name="window_light_status_bar">true</bool>
