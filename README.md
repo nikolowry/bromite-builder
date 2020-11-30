@@ -53,7 +53,7 @@ If no [command] is set, the default command sequence will be executed:
 
 Options:
   -a, --arch=<arch>
-    Where <arch> is: arm, arm64, x86.
+    Where <arch> is: arm, arm64, x86, x64.
     Defaults to arm
 
   -g, --gn-args=<args>

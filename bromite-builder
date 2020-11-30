@@ -5,7 +5,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # User-defined Variables
-ARCH_TYPES=('arm' 'arm64' 'x86')
+ARCH_TYPES=('arm' 'arm64' 'x86' 'x64')
 ARCH=${ARCH_TYPES[0]}
 DARK_NAVBAR=
 GN_ARGS=
