@@ -124,7 +124,7 @@ fetch-sync () {
     # Partial checkouts not supported, delete and start over (crbug.com/230691)
     [[ ! -e .gclient ]] || [[ ! -e .gclient_entries ]] || [[ ! -d .cipd ]] \
         && rm -rf ../chromium/{*,.g*,.c*} \
-        && fetch --nohooks android
+        && fetch --nohooks --no-history android
 
     # Use custom debloated gclient config
     cp -f "$CWD/.gclientconfig" .gclient
@@ -143,8 +143,7 @@ fetch-sync () {
     # Reset tree
     git clean -fdxq --exclude="out/Default_${REVISION}"
 
-    # Accept any y/n prompts
-    echo 'y' | gclient sync --with_branch_heads --force --reset -r "$REVISION"
+    echo 'y' | gclient sync --no-history --force --reset -r "$REVISION"
 }
 
 prepare () {
