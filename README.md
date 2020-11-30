@@ -14,7 +14,9 @@ Utility script for building [Bromite](https://github.com/bromite/bromite) releas
 More than 16GB is highly recommended.
 - At least 100GB of free disk space.
 - Git and Python 2 for checking out and building Chromium
-- Python 3 for [Ungoogled Chromium's](https://github.com/Eloston/ungoogled-chromium) domain substitution utility
+- Python 3 for [Ungoogled Chromium's](https://github.com/Eloston/ungoogled-chromium)
+domain substitution utility. Only used when Bromite's
+`Automated-domain-substitution.patch` fails to be applied
 
 ## <a name="setup"></a>Setup
 
