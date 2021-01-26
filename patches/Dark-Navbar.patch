@@ -1,18 +1,18 @@
-diff -ruN a/components/browser_ui/styles/android/java/res/values/colors.xml b/components/browser_ui/styles/android/java/res/values/colors.xml
---- a/components/browser_ui/styles/android/java/res/values/colors.xml	2020-11-19 17:17:15.951027405 -0500
-+++ b/components/browser_ui/styles/android/java/res/values/colors.xml	2020-11-19 17:19:37.451147193 -0500
+diff -rupN a/components/browser_ui/styles/android/java/res/values/colors.xml b/components/browser_ui/styles/android/java/res/values/colors.xml
+--- a/components/browser_ui/styles/android/java/res/values/colors.xml	2021-01-26 16:59:00.131281624 -0500
++++ b/components/browser_ui/styles/android/java/res/values/colors.xml	2021-01-26 17:02:10.517478843 -0500
 @@ -32,6 +32,6 @@
      <color name="default_favicon_background_color">@color/default_control_color_normal_light</color>
  
      <!-- Navigation bar colors -->
--    <color name="bottom_system_nav_color">@color/modern_white</color>
--    <color name="bottom_system_nav_divider_color">@color/black_alpha_12</color>
+-    <color name="bottom_system_nav_color">@color/toolbar_background_primary</color>
+-    <color name="bottom_system_nav_divider_color">@color/hairline_stroke_color</color>
 +    <color name="bottom_system_nav_color">@android:color/black</color>
 +    <color name="bottom_system_nav_divider_color">@android:color/black</color>
  </resources>
-diff -ruN a/components/browser_ui/styles/android/java/res/values/values.xml b/components/browser_ui/styles/android/java/res/values/values.xml
---- a/components/browser_ui/styles/android/java/res/values/values.xml	2020-11-19 17:17:24.591035838 -0500
-+++ b/components/browser_ui/styles/android/java/res/values/values.xml	2020-11-19 17:20:01.027830389 -0500
+diff -rupN a/components/browser_ui/styles/android/java/res/values/values.xml b/components/browser_ui/styles/android/java/res/values/values.xml
+--- a/components/browser_ui/styles/android/java/res/values/values.xml	2021-01-26 16:59:10.601255111 -0500
++++ b/components/browser_ui/styles/android/java/res/values/values.xml	2021-01-26 17:02:41.794070633 -0500
 @@ -5,7 +5,7 @@
  
  <resources xmlns:tools="http://schemas.android.com/tools">
