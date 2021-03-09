@@ -298,6 +298,7 @@ build () {
     gn_args+=" blink_symbol_level=0"
     gn_args+=" enable_resource_allowlist_generation=false"
     gn_args+=" symbol_level=0"
+    gn_args+=" treat_warnings_as_errors=false"
 
     # Cast user GN args to array
     gn_args_user_arr=($(echo $GN_ARGS | tr " " "\n"))

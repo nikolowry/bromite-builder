@@ -104,8 +104,7 @@ the following:
 - Build flag to revert the white Navigation Bar in the Material Design Refresh (MD2)
 to black with option `--dark-navbar`
 - GN args to default to disabled symbols for faster build times: 
-`blink_symbol_level=0 symbol_level=0 enable_resource_allowlist_generation=false`
-
+`blink_symbol_level=0 symbol_level=0 enable_resource_allowlist_generation=false treat_warnings_as_errors=false`.
 
 ## <a name="resources"></a>Resources
 
