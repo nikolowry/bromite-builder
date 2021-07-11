@@ -56,6 +56,10 @@ Options:
     Where <arch> is: arm, arm64, x86, x64.
     Defaults to arm
 
+  -b, --bromite-git-url=<url>
+    Where <url> is a Bromite Git repository.
+    Defaults to https://github.com/bromite/bromite.git
+
   -g, --gn-args=<args>
     Where <args> is a string of GN build arguments
 

@@ -7,6 +7,9 @@ IFS=$'\n\t'
 # User-defined Variables
 ARCH_TYPES=('arm' 'arm64' 'x86' 'x64')
 ARCH=${ARCH_TYPES[0]}
+BROMITE_GIT_URL_UPSTREAM="https://github.com/bromite/bromite.git"
+BROMITE_GIT_URL=${BROMITE_GIT_URL_UPSTREAM:-}
+BROMITE_GIT_TAGS=
 DARK_NAVBAR=
 GN_ARGS=
 OUTPUT_DIR="$(pwd)/out"
@@ -26,9 +29,10 @@ UPSTREAM_SHORT_HASH=
 opts=(
     "-a, --arch=<arch> | Where <arch> is: $(echo "${ARCH_TYPES[@]}" \
         | sed -E "s/\s/, /g"). Defaults to $ARCH"
+    "-b, --bromite-git-url=<url> | Where <url> is a Bromite Git repository. Defaults to $BROMITE_GIT_URL_UPSTREAM"
     "-g, --gn-args=<args> | Where <args> is a string of GN build arguments"
     "-o, --output-dir=<dir> | Where <dir> is a path to save the APK. Defaults to ./out"
-    "-p, --patches-dir=<dir> | Where <dir> is a path to a directory containing custom patches" \
+    "-p, --patches-dir=<dir> | Where <dir> is a path to a directory containing custom patches"
     "-t, --target=<target> | Where Ninja <target> is: $(echo "${TARGET_TYPES[@]}" \
         | sed -E "s/\s/, /g"). Defaults to $TARGET"
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. Defaults to latest release"
@@ -43,7 +47,6 @@ opts=(
 DEFAULTS=('set-revision' 'fetch-sync' 'prepare' 'build')
 CWD=$(cd "$( dirname "$0" )" && pwd)
 BUILD_DIR=$CWD/build
-BASE_URL="https://github.com/bromite/bromite"
 
 # ENV
 PYTHONPATH=${PYTHONPATH:-}
@@ -53,73 +56,83 @@ clean () {
 }
 
 set-revision () {
-    local url
-    local error_msg
-    local latest
+    local custom_build
+    local chromium_archive
+    local error_msg=
+
+    BROMITE_GIT_TAGS=$(git ls-remote --tags --sort="v:refname" $BROMITE_GIT_URL)
+
+    custom_build=$([[ $UPSTREAM ]] && [[ $REVISION ]] \
+        && echo 1 \
+        || echo '')
+
+    [[ $custom_build ]] \
+        && chromium_archive="https://github.com/chromium/chromium/archive/$REVISION.tar.gz" \
+        && [[ $(curl -Lso /dev/null -I -w "%{http_code}" "$chromium_archive") != 200 ]] \
+        && error_msg="Error: Release tag $REVISION not found"
+
+    [[ ! $custom_build ]] && [[ $REVISION ]] \
+        && [[ ! $(echo "$BROMITE_GIT_TAGS" | grep "$REVISION") ]] \
+        && error_msg="Error: Release tag $REVISION not found"
+
+    [[ ! $custom_build ]] && [[ ! $REVISION ]] \
+        && REVISION=$(echo "$BROMITE_GIT_TAGS"  \
+            | tail --line=1 \
+            | cut --delimiter='/' --fields=3)
+
+    [[ ! $custom_build ]] && [[ ! $REVISION ]] \
+        && error_msg="A Bromite release couldn't be found. Check your network and try again"
 
     [[ $UPSTREAM ]] \
         && UPSTREAM_SHORT_HASH=$(echo $([[ $UPSTREAM != master ]] \
                 && echo $UPSTREAM \
-                || git ls-remote "$BASE_URL.git" HEAD \
+                || git ls-remote "$BROMITE_GIT_URL" HEAD \
                     | awk '{print $1}') \
-            | sed -E "s/^(.{7}).+/\1/") \
-        && echo "Using Bromite git commit $UPSTREAM_SHORT_HASH"
+            | sed -E "s/^(.{7}).+/\1/")
 
-    [[ $UPSTREAM ]] && [[ $REVISION ]] \
-        && url="https://github.com/chromium/chromium/archive/$REVISION.tar.gz"
-
-    [[ ! ${url:-} ]] \
-        && url=$([[ $REVISION ]] \
-            && echo "$BASE_URL/archive/$REVISION.tar.gz" \
-            || echo "$BASE_URL/releases/latest")
-
-    [[ $REVISION ]] \
-        && error_msg="Error: Release v$REVISION not found" \
-        || error_msg='Error: Latest Bromite release not found. Check your network connection and try again'
-
-    [[ $(curl -Lso /dev/null -I -w "%{http_code}" "$url") != 200 ]] \
+    [[ $error_msg ]] \
         && echo "$error_msg" \
         && exit 1
 
-    if [[ ! $REVISION ]]; then
-        latest=$(curl -Lso /dev/null -w '%{url_effective}' "$url")
-        REVISION=${latest##*/}
-    fi
+    [[ $UPSTREAM_SHORT_HASH ]] \
+        && echo "Using Bromite git commit $UPSTREAM_SHORT_HASH"
 
     echo "Revision now set to $REVISION"
 }
 
 fetch-sync () {
-    local url
-    local tarname
+    local hash
+    local bromite_dir
 
     mkdir -p "$BUILD_DIR"
     cd "$BUILD_DIR"
 
-    url=$([[ $UPSTREAM ]] \
-        && echo "https://api.github.com/repos/bromite/bromite/tarball/$UPSTREAM" \
-        || echo "$BASE_URL/archive/$REVISION.tar.gz")
-
-    tarname=$([[ $UPSTREAM_SHORT_HASH ]] \
+    bromite_dir=$([[ $UPSTREAM_SHORT_HASH ]] \
         && echo "bromite-$UPSTREAM_SHORT_HASH" \
         || echo "bromite-$REVISION")
 
-    # Fetch & Extract Bromite
-    echo "Fetching Bromite Archive"
-    curl -Lso "$tarname.tar.gz" "$url"
+    rm -rf "$bromite_dir"
 
-    echo "Extracting Bromite Archive"
-    tar -xf "$tarname.tar.gz"
+    echo "Fetching Bromite"
+    git clone --depth 1 $BROMITE_GIT_URL "$bromite_dir" -q
 
-    [[ $UPSTREAM_SHORT_HASH ]] \
-        && rm -rf "$tarname" \
-        && mv "bromite-$tarname" "$tarname"
+    hash=$([[ $UPSTREAM ]] \
+        && echo "$UPSTREAM" \
+        || echo "$BROMITE_GIT_TAGS" \
+            | grep "$REVISION" \
+            | awk '{print $1}')
 
-    mkdir -p chromium
-    cd chromium
+    cd "$bromite_dir"
+    git reset "$hash" --hard -q
+    rm -rf .git
 
     # Fetch & Sync Chromium
     echo "Fetching and Syncing Chromium"
+
+    cd "$BUILD_DIR"
+
+    mkdir -p chromium
+    cd chromium
 
     # Partial checkouts not supported, delete and start over (crbug.com/230691)
     [[ ! -e .gclient ]] || [[ ! -e .gclient_entries ]] || [[ ! -d .cipd ]] \
