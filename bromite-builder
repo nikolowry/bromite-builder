@@ -114,7 +114,7 @@ fetch-sync () {
     rm -rf "$bromite_dir"
 
     echo "Fetching Bromite"
-    git clone --depth 1 $BROMITE_GIT_URL "$bromite_dir" -q
+    git clone $BROMITE_GIT_URL "$bromite_dir" -q
 
     hash=$([[ $UPSTREAM ]] \
         && echo "$UPSTREAM" \
