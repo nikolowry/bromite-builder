@@ -484,11 +484,7 @@ _localbin () {
         && git clone -q https://chromium.googlesource.com/chromium/tools/depot_tools.git
 
     cd "$CWD/.bin/depot_tools"
-
-    # TODO: Drop once gsutil 4.6+ works for non-googlers
     git clean -fdq
-    git reset ef579a1192d2dace337b752245ba1c121f12b7ea --hard -q
-    export DEPOT_TOOLS_UPDATE=0
 
     # Update PATH
     export PATH=$CWD/.bin:$CWD/.bin/depot_tools:$PATH
