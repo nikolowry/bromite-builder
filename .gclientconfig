@@ -5,7 +5,8 @@ solutions = [{
     "custom_deps": {
         "src/native_client": None,
         "src/third_party/gvr-android-sdk/src": None,
-        "src/third_party/arcore-android-sdk/src": None
+        "src/third_party/arcore-android-sdk/src": None,
+        "src/third_party/depot_tools": "https://chromium.googlesource.com/chromium/tools/depot_tools.git",
     },
     "custom_hooks": [{
         "name": "gvr_static_shim_android_arm",
