@@ -13,10 +13,7 @@ Utility script for building [Bromite](https://github.com/bromite/bromite) releas
 - A 64-bit Intel machine running Linux with at least 8GB of RAM.
 More than 16GB is highly recommended.
 - At least 100GB of free disk space.
-- Git and Python 2 for checking out and building Chromium
-- Python 3 for [Ungoogled Chromium's](https://github.com/Eloston/ungoogled-chromium)
-domain substitution utility. Only used when Bromite's
-`Automated-domain-substitution.patch` fails to be applied
+- Git and Python for checking out and building Chromium
 
 ## <a name="setup"></a>Setup
 
@@ -109,6 +106,11 @@ the following:
 to black with option `--dark-navbar`
 - GN args to default to disabled symbols for faster build times: 
 `blink_symbol_level=0 symbol_level=0 enable_resource_allowlist_generation=false treat_warnings_as_errors=false`.
+
+If Bromite's `Automated-domain-substitution.patch` fails to apply,
+[Ungoogled Chromium's](https://github.com/Eloston/ungoogled-chromium)
+domain substitution utility will be used as a fallback instead. To disable this
+fallback, add the `--no-skip-patches` flag to your `bromite-builder` command.
 
 ## <a name="resources"></a>Resources
 

@@ -471,7 +471,6 @@ _localpatches () {
 }
 
 _localbin () {
-    local python_v
     local protobuf_repo
     local protoc_javalite_bin
 
@@ -489,16 +488,6 @@ _localbin () {
     # Update PATH
     export PATH=$CWD/.bin:$CWD/.bin/depot_tools:$PATH
     export PYTHONPATH="$CWD/.bin/depot_tools/third_party:$PYTHONPATH"
-
-    # Use Python 2
-    # TODO: Drop once gsutil 4.6+ works for non-googlers
-    python_v=$(python --version \
-        | sed "s|[a-z]\s*||ig" \
-        | cut -d '.' -f 1)
-
-    [[ $python_v != 2 ]] \
-        && [[ $(command -v python2) ]] \
-        && ln -sf "$(command -v python2)" "$CWD/.bin/python"
 
     # Ensure 64 bit protobuf-gen-javalite is available in PATH
     # Can remove after issue is resolved https://crbug.com/988512
