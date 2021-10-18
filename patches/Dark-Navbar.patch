@@ -1,24 +1,28 @@
 diff -rupN a/components/browser_ui/styles/android/java/res/values/colors.xml b/components/browser_ui/styles/android/java/res/values/colors.xml
---- a/components/browser_ui/styles/android/java/res/values/colors.xml	2021-09-28 21:42:57.119635190 -0400
-+++ b/components/browser_ui/styles/android/java/res/values/colors.xml	2021-09-28 21:44:20.702951989 -0400
-@@ -30,6 +30,6 @@
-
+--- a/components/browser_ui/styles/android/java/res/values/colors.xml	2021-10-18 10:55:37.450821333 -0400
++++ b/components/browser_ui/styles/android/java/res/values/colors.xml	2021-10-18 10:58:27.105807863 -0400
+@@ -28,9 +28,9 @@
+     <color name="default_favicon_background_color">@color/default_control_color_normal_light</color>
+ 
      <!-- Navigation bar colors -->
-     <color name="bottom_system_nav_color">@color/toolbar_background_primary</color>
+-    <color name="bottom_system_nav_color">@color/toolbar_background_primary</color>
 -    <color name="bottom_system_nav_divider_color">@color/divider_line_bg_color</color>
 -    <color name="bottom_system_nav_divider_color_light">@color/divider_line_bg_color_light</color>
++    <color name="bottom_system_nav_color">@android:color/black</color>
 +    <color name="bottom_system_nav_divider_color">@android:color/black</color>
 +    <color name="bottom_system_nav_divider_color_light">@android:color/black</color>
- </resources>
+ 
+     <color name="text_highlight_color_incognito">@color/baseline_primary_200_alpha_20</color>
+ 
 diff -rupN a/components/browser_ui/styles/android/java/res/values/values.xml b/components/browser_ui/styles/android/java/res/values/values.xml
---- a/components/browser_ui/styles/android/java/res/values/values.xml	2021-09-28 21:43:31.252962076 -0400
-+++ b/components/browser_ui/styles/android/java/res/values/values.xml	2021-09-28 21:45:58.366263123 -0400
+--- a/components/browser_ui/styles/android/java/res/values/values.xml	2021-10-18 10:56:02.533950275 -0400
++++ b/components/browser_ui/styles/android/java/res/values/values.xml	2021-10-18 10:58:38.829001774 -0400
 @@ -5,7 +5,7 @@
-
+ 
  <resources xmlns:tools="http://schemas.android.com/tools">
      <!-- Bottom navigation bar styling. -->
 -    <bool name="window_light_navigation_bar">true</bool>
 +    <bool name="window_light_navigation_bar">false</bool>
-
+ 
      <!-- Status bar icon styling. -->
      <bool name="window_light_status_bar">true</bool>
