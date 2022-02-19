@@ -60,6 +60,9 @@ Options:
   -g, --gn-args=<args>
     Where <args> is a string of GN build arguments
 
+  -n, --name=<package-name>
+    Where <package-name> is a valid Android package name
+
   -o, --output-dir=<dir>
     Where <dir> is a path to save the APK.
     Defaults to ./out
@@ -79,6 +82,10 @@ Options:
     Where <commit-hash> is a long-format git commit.
     Defaults to master's HEAD.
     When set, any Chromium tag can be assigned to <revision>
+
+  --no-bromite-package-name
+    Use "org.chromium.chrome" for package name.
+    Overridden if <package-name> is set
 
   --no-bromite-patches
     Only apply patches from Bromite's chromium_patches_list.txt
@@ -101,10 +108,10 @@ Options:
 Builds produced with `bromite-builder` differ from official Bromite releases with
 the following:
 
-- Retains Chromium branding and namespace
+- Retains Chromium branding and namespace with option `--no-bromite-package-name`
 - Build flag to revert the white Navigation Bar in the Material Design Refresh (MD2)
 to black with option `--dark-navbar`
-- GN args to default to disabled symbols for faster build times: 
+- GN args to default to disabled symbols for faster build times:
 `blink_symbol_level=0 symbol_level=0 enable_resource_allowlist_generation=false treat_warnings_as_errors=false`.
 
 If Bromite's `Automated-domain-substitution.patch` fails to apply,

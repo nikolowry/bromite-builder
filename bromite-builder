@@ -14,6 +14,8 @@ DARK_NAVBAR=
 GN_ARGS=
 OUTPUT_DIR="$(pwd)/out"
 PATCHES_DIR=
+NAME=
+NO_BROMITE_PACKAGE_NAME=
 NO_BROMITE_PATCHES=
 NO_SKIP_PATCHES=
 REVISION=
@@ -31,12 +33,14 @@ opts=(
         | sed -E "s/\s/, /g"). Defaults to $ARCH"
     "-b, --bromite-git-url=<url> | Where <url> is a Bromite Git repository. Defaults to $BROMITE_GIT_URL_UPSTREAM"
     "-g, --gn-args=<args> | Where <args> is a string of GN build arguments"
+    "-n, --name=<package-name> | Where <package-name> is a valid Android package name"
     "-o, --output-dir=<dir> | Where <dir> is a path to save the APK. Defaults to ./out"
     "-p, --patches-dir=<dir> | Where <dir> is a path to a directory containing custom patches"
     "-t, --target=<target> | Where Ninja <target> is: $(echo "${TARGET_TYPES[@]}" \
         | sed -E "s/\s/, /g"). Defaults to $TARGET"
     "-r, --revision=<revision> | Where <revision> is a Bromite release tag. Defaults to latest release"
     "-u, --upstream=<commit-hash:=master> | Where <commit-hash> is a long-format git commit. Defaults to master's HEAD. When set, any Chromium tag can be assigned to <revision>"
+    "--no-bromite-package-name | Use \"org.chromium.chrome\" for package name. Overridden if <package-name> is set"
     "--no-bromite-patches | Only apply patches from Bromite's chromium_patches_list.txt"
     "--no-skip-patches | Exit on failed patch attempts"
     "--dark-navbar | Prefer a dark navigation bar over a white one"
@@ -281,6 +285,8 @@ build () {
         && fetch-sync \
         && prepare
 
+    _setpackagename
+
     # V8 Compiler Optimization Workaround | https://crbug.com/942497
     sed -i 's|"-O0"|"-O2"|g' \
         "$BUILD_DIR/chromium/src/build/config/compiler/BUILD.gn"
@@ -448,6 +454,33 @@ _setopts () {
     done
 }
 
+_setpackagename () {
+    local dev_url
+    local gn_path
+    local channel_exp
+
+    [[ ! $NAME ]] \
+        && return
+
+    dev_url="https://developer.android.com/guide/topics/manifest/manifest-element#package"
+
+    [[ ! $NAME =~ ^([A-Za-z]{1}[A-Za-z\d_]*\.)+[A-Za-z][A-Za-z\d_]*$ ]] \
+        && echo "Error: Invalid package name. Read more at $dev_url" \
+        && exit 1
+
+    gn_path="$BUILD_DIR/chromium/src/chrome/android/BUILD.gn"
+
+    [[ -e $gn_path ]] \
+        && sed -E -i "s/^(_default_package\s*=\s*\")[^'|\"]+(\")/\1$NAME\2/" \
+            "$gn_path"
+
+    channel_exp="(^if\s*\(android_channel\s*!=\s*\"default\"\s+)"
+    channel_exp="$channel_exp&&\s+android_channel\s*!=\s*\"stable\"(.+)"
+
+    [[ -e $gn_path ]] \
+        && sed -E -i "s/$channel_exp/\1\2/g" "$gn_path"
+}
+
 _localpatches () {
     local patches_dir_msg
     local patches_dir_abspath
@@ -558,6 +591,11 @@ main () {
 
     # Set Options
     _setopts "$@"
+
+    # Set custom package name
+    [[ $NO_BROMITE_PACKAGE_NAME ]] \
+        && [[ ! $NAME ]] \
+        && NAME='org.chromium.chrome'
 
     # Setup custom patches dir
     _localpatches
