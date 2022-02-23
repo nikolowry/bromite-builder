@@ -526,6 +526,8 @@ _localbin () {
 
     cd "$CWD/.bin/depot_tools"
     git clean -fdq
+    git reset f72b1bafb7108eb8fecdf3d9bc19c5ac76a74079 --hard -q
+    export DEPOT_TOOLS_UPDATE=0
 
     # Update PATH
     export PATH=$CWD/.bin:$CWD/.bin/depot_tools:$PATH
