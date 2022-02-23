@@ -1,6 +1,6 @@
 diff -rupN a/components/browser_ui/styles/android/java/res/values/colors.xml b/components/browser_ui/styles/android/java/res/values/colors.xml
 --- a/components/browser_ui/styles/android/java/res/values/colors.xml	2022-02-23 09:52:33.786352573 -0500
-+++ b/components/browser_ui/styles/android/java/res/values/colors.xml	2022-02-23 09:54:13.867018662 -0500
++++ b/components/browser_ui/styles/android/java/res/values/colors.xml	2022-02-23 15:46:47.930237939 -0500
 @@ -27,9 +27,9 @@
      <color name="default_favicon_background_color">@color/default_control_color_normal_light</color>
  
@@ -9,7 +9,7 @@ diff -rupN a/components/browser_ui/styles/android/java/res/values/colors.xml b/c
 -    <macro name="bottom_system_nav_divider_color">@macro/divider_line_bg_color</macro>
 -    <color name="bottom_system_nav_divider_color_light">@color/divider_line_bg_color_light</color>
 +    <color name="bottom_system_nav_color">@android:color/black</color>
-+    <color name="bottom_system_nav_divider_color">@android:color/black</color>
++    <macro name="bottom_system_nav_divider_color">@android:color/black</macro>
 +    <color name="bottom_system_nav_divider_color_light">@android:color/black</color>
  
      <!-- This is the color that will appear on the system recents UI. It is a neutral background
