@@ -1,12 +1,12 @@
 diff -rupN a/components/browser_ui/styles/android/java/res/values/colors.xml b/components/browser_ui/styles/android/java/res/values/colors.xml
---- a/components/browser_ui/styles/android/java/res/values/colors.xml	2021-12-25 14:37:05.852449736 -0500
-+++ b/components/browser_ui/styles/android/java/res/values/colors.xml	2021-12-25 14:40:18.649931782 -0500
-@@ -28,9 +28,9 @@
+--- a/components/browser_ui/styles/android/java/res/values/colors.xml	2022-02-23 09:52:33.786352573 -0500
++++ b/components/browser_ui/styles/android/java/res/values/colors.xml	2022-02-23 09:54:13.867018662 -0500
+@@ -27,9 +27,9 @@
      <color name="default_favicon_background_color">@color/default_control_color_normal_light</color>
  
      <!-- Navigation bar colors -->
 -    <color name="bottom_system_nav_color">@color/toolbar_background_primary</color>
--    <color name="bottom_system_nav_divider_color">@color/divider_line_bg_color</color>
+-    <macro name="bottom_system_nav_divider_color">@macro/divider_line_bg_color</macro>
 -    <color name="bottom_system_nav_divider_color_light">@color/divider_line_bg_color_light</color>
 +    <color name="bottom_system_nav_color">@android:color/black</color>
 +    <color name="bottom_system_nav_divider_color">@android:color/black</color>
@@ -15,8 +15,8 @@ diff -rupN a/components/browser_ui/styles/android/java/res/values/colors.xml b/c
      <!-- This is the color that will appear on the system recents UI. It is a neutral background
           color that adapts to dark/light modes but not a dynamic color. -->
 diff -rupN a/components/browser_ui/styles/android/java/res/values/values.xml b/components/browser_ui/styles/android/java/res/values/values.xml
---- a/components/browser_ui/styles/android/java/res/values/values.xml	2021-12-25 14:36:45.902443577 -0500
-+++ b/components/browser_ui/styles/android/java/res/values/values.xml	2021-12-25 14:40:34.156715330 -0500
+--- a/components/browser_ui/styles/android/java/res/values/values.xml	2022-02-23 09:52:45.116434063 -0500
++++ b/components/browser_ui/styles/android/java/res/values/values.xml	2022-02-23 09:53:22.610025627 -0500
 @@ -5,7 +5,7 @@
  
  <resources xmlns:tools="http://schemas.android.com/tools">
