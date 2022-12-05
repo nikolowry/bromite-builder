@@ -471,7 +471,7 @@ _setpackagename () {
     gn_path="$BUILD_DIR/chromium/src/chrome/android/BUILD.gn"
 
     [[ -e $gn_path ]] \
-        && sed -E -i "s/^(_default_package\s*=\s*\")[^'|\"]+(\")/\1$NAME\2/" \
+        && sed -E -i "s/^(\s*_default_package\s*=\s*\")[^'|\"]+(\")/\1$NAME\2/" \
             "$gn_path"
 
     channel_exp="(^if\s*\(android_channel\s*!=\s*\"default\"\s+)"
