@@ -457,7 +457,6 @@ _setopts () {
 _setpackagename () {
     local dev_url
     local gn_path
-    local channel_exp
 
     [[ ! $NAME ]] \
         && return
@@ -473,12 +472,6 @@ _setpackagename () {
     [[ -e $gn_path ]] \
         && sed -E -i "s/^(\s*_default_package\s*=\s*\")[^'|\"]+(\")/\1$NAME\2/" \
             "$gn_path"
-
-    channel_exp="(^if\s*\(android_channel\s*!=\s*\"default\"\s+)"
-    channel_exp="$channel_exp&&\s+android_channel\s*!=\s*\"stable\"(.+)"
-
-    [[ -e $gn_path ]] \
-        && sed -E -i "s/$channel_exp/\1\2/g" "$gn_path"
 }
 
 _localpatches () {
